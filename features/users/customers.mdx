@@ -1,0 +1,60 @@
+---
+title: Customers
+description: View and manage end-user accounts — the ticket buyers who purchase through TradeMaster Transactions.
+---
+
+Customers are the end users who purchase tickets through TMT. Unlike staff, clients, and collaborators, customers are not created manually through the admin panel — they self-register through the public-facing ticketing interface. The TMT back office provides read-only views of customer profiles, their order history, and their purchased tickets.
+
+## Routes
+
+| Route | Description |
+|---|---|
+| `/usuarios-customers` | Customer list |
+| `/usuarios-detalle-customers` | Customer detail |
+| `/lista-ordenes-customer` | Orders placed by a specific customer |
+| `/lista-tickets-customer` | Tickets purchased by a specific customer |
+
+## Customer list
+
+The list page at `/usuarios-customers` (labeled "Lista de Compradores" in the UI) shows all registered customer accounts in a searchable, paginated table.
+
+Customer data is stored in the `u_users` Firestore collection.
+
+## Customer detail view
+
+Navigate to `/usuarios-detalle-customers?id={customer_id}` to open a customer profile. The page is organized into three sections:
+
+<CardGroup cols={3}>
+  <Card title="Profile banner" icon="circle-user">
+    Displays the customer's profile photo, name, and account status.
+  </Card>
+  <Card title="Introduction card" icon="address-card">
+    Shows full name, email address, phone number, and address (street, city, country).
+  </Card>
+  <Card title="Security card" icon="shield">
+    Displays account security details and the current account status.
+  </Card>
+</CardGroup>
+
+## Order history
+
+Navigate to `/lista-ordenes-customer?id={customer_id}` to view all orders placed by a specific customer. This uses the same order list table as the main orders module, filtered to show only orders belonging to that customer.
+
+From the order list you can:
+- Search and filter orders
+- Click any order to open the full order detail view
+- Export the list as CSV
+
+## Purchased tickets
+
+Navigate to `/lista-tickets-customer?id={customer_id}` to view all tickets purchased by a specific customer across all events.
+
+## What customers cannot do in the back office
+
+Customers are read-only entities from the back office perspective:
+
+- You cannot create a customer account from the admin panel
+- You cannot edit customer profile data directly
+- You cannot assign permissions or roles to customers
+
+Customers manage their own accounts through the public ticketing interface. If a customer needs account assistance, contact them directly using the email address shown in their profile.

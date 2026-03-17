@@ -1,0 +1,109 @@
+---
+title: Payment methods
+description: Configure the payment methods available at taquillas and events, and link each method to a custody account and client.
+---
+
+A **payment method** (Método de Pago) defines a specific channel through which customers can pay for tickets — for example, cash, card, bank transfer, or mobile payment. Each payment method in TMT is linked to a custody account that holds the collected funds, and to a client/producer who owns the revenue.
+
+Payment methods are assigned to offices (taquillas) and events so that only the configured options appear during the sales process.
+
+## Routes
+
+| Route | Purpose |
+|---|---|
+| `/metodos-pagos` | List of all payment methods |
+| `/metodos-pagos-crear` | Create a new payment method |
+| `/metodos-pagos-editar?id={id}` | Edit an existing payment method |
+| `/metodos-pagos-detalle?id={id}` | View payment method details |
+
+## Payment method types
+
+<AccordionGroup>
+  <Accordion title="Bank transfer">
+    Bank transfers route payments through a traditional banking channel. When you create a payment method of this type, you must provide the destination bank, account number, account holder name, and ID number. Funds are credited to the linked custody account after the transfer is confirmed.
+  </Accordion>
+  <Accordion title="Mobile payment">
+    Mobile payment methods cover phone-based payment networks. The required fields are phone number, ID number, and the account holder's name. This type is common for local payment rails in markets where mobile wallets are prevalent.
+  </Accordion>
+  <Accordion title="Cash">
+    Cash payment methods record in-person payments collected at a taquilla. No bank account details are required. The custody account linked to a cash method tracks the physical cash balance held by the office.
+  </Accordion>
+  <Accordion title="Card">
+    Card payment methods cover debit and credit card transactions processed through a point-of-sale terminal. The method is linked to a custody account that receives the settled funds after the card network clears the transaction.
+  </Accordion>
+</AccordionGroup>
+
+## Setting up a payment method
+
+Navigate to `/metodos-pagos-crear` or click **Crear Método de Pago** in the list view.
+
+<Steps>
+  <Step title="Name the method">
+    Enter a descriptive label in the **Nombre** field. This name appears in point-of-sale dropdowns and reports, so choose something that identifies both the type and the client clearly (for example, "Transferencia Banco Mercantil - Cliente ABC").
+  </Step>
+  <Step title="Select the payment type">
+    Choose a value from **Tipo de Pago**. The available types come from the platform's payment type catalog. Your selection determines which specific methods and field sets are shown later.
+  </Step>
+  <Step title="Select the currency">
+    Choose the **Moneda**. The currency and payment type together determine which methods are available for selection.
+  </Step>
+  <Step title="Select the method">
+    Choose a specific **Método** from the filtered list. This field is enabled only after both **Tipo de Pago** and **Moneda** are set. Each method corresponds to a particular payment rail (for example, a named bank or wallet provider).
+  </Step>
+  <Step title="Select the client">
+    Choose the **Cliente / Productor** that owns the revenue collected through this method. You can assign a method to TMT itself or to any registered client. The client selection also filters which custody accounts are available in the next step.
+  </Step>
+  <Step title="Link a custody account">
+    Choose the **Cuenta Custodio** that will hold funds collected through this method. The dropdown shows only custody accounts that match the selected client, payment type, and currency. This field is disabled until client, payment type, and currency are all selected.
+  </Step>
+  <Step title="Set the adjustment percentage">
+    Enter an integer in the **Porcentaje** field (0–100). This percentage is applied as a financial adjustment when the method is used — for example, to account for processing fees or platform commissions.
+  </Step>
+  <Step title="Fill in the payment data">
+    Based on the method chosen, additional fields appear in the **Datos** section. Complete all required fields such as bank name, account number, ID number, phone, email, and account holder name.
+  </Step>
+  <Step title="Save the method">
+    Click **Guardar** to create the payment method. Click **Cancelar** to discard the form.
+  </Step>
+</Steps>
+
+<Warning>
+  The **Método** and **Cuenta Custodio** fields are only available after you fill in the fields that come before them. Work through the form top to bottom to avoid empty dropdowns.
+</Warning>
+
+## Editing a payment method
+
+Navigate to `/metodos-pagos-editar?id={id}` or click the edit action from the list. The form is identical to the creation form and is pre-populated with current values. Click **Guardar** after making changes.
+
+## Payment method detail
+
+Navigate to `/metodos-pagos-detalle?id={id}` to inspect a payment method. The detail view is divided into two panels.
+
+### Main panel
+
+**Method details**
+- Name, method name, and payment type
+- Currency and country
+- Adjustment percentage
+
+**Payment data** (fields present depend on the method type)
+- Bank name
+- Account number
+- ID number
+- Phone number
+- Email address
+- Account holder name
+
+### Side panel
+
+- **Status** — ACTIVO or INACTIVO, displayed with a color indicator.
+- **Cuenta Custodio** — Name and ID of the linked custody account.
+- **Cliente / Productor** — Name and ID of the client who owns this method's revenue.
+
+## Assigning payment methods to offices and events
+
+Once a payment method is created and active, it can be assigned inside the office (taquilla) configuration or event setup. Only methods assigned to an office are available to collaborators working that office during a sale.
+
+<Info>
+  To make a payment method available at a new office or event, open the office or event settings and add the method from the payment configuration panel.
+</Info>

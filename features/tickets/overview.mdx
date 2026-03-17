@@ -1,0 +1,96 @@
+---
+title: Tickets
+description: View, search, and manage event tickets across all channels in TradeMaster Transactions.
+---
+
+The tickets module lets you inspect every ticket issued for an event, look up individual tickets by identifier, and review full ticket details including QR code and seat assignment. Tickets are created automatically when an order is confirmed and are scoped to a specific event.
+
+## Routes
+
+| Route | Description |
+|---|---|
+| `/tickets` | Ticket list for a specific event |
+| `/tickets-detalles` | Individual ticket detail view |
+| `/buscar-ticket` | Ticket search by identifier |
+| `/ticket-consultado` | Query result after a ticket search |
+
+## Features overview
+
+<CardGroup cols={2}>
+  <Card title="Ticket list" icon="list">
+    Browse all tickets for an event with pagination, global search, and CSV export.
+  </Card>
+  <Card title="Ticket detail" icon="ticket">
+    View complete ticket information including QR code, seat, zone, event dates, and customer data.
+  </Card>
+  <Card title="Ticket search" icon="magnifying-glass">
+    Look up any ticket across all events using its unique identifier.
+  </Card>
+  <Card title="Offline tickets" icon="building-store">
+    Tickets sold at physical offices are recorded in the same system and accessible through the same views.
+  </Card>
+</CardGroup>
+
+## Ticket list
+
+Navigate to `/tickets?id={event_id}` to open the ticket list for a specific event. The page displays the event banner at the top and a paginated data table below it.
+
+### Columns
+
+| Column | Description |
+|---|---|
+| Ticket ID | Unique identifier for the ticket |
+| Zone | Venue zone or section assigned to the ticket |
+| Seat | Specific seat identifier within the zone |
+| Customer name | Name of the ticket holder (if captured at purchase) |
+| Status | **Activo** (green) or **Inactivo** (red) |
+| Actions | Eye icon to open the ticket detail view |
+
+### Filtering and search
+
+The global search bar at the top of the table filters across ticket ID, zone, seat, and customer data in real time. Use the download icon to export the current result set as a CSV file.
+
+## Ticket detail view
+
+Navigate to `/tickets-detalles?event_id={event_id}&id={ticket_id}` to open a specific ticket. The detail view is divided into three panels:
+
+**Customer information** — shown only when customer data was captured at the time of purchase. Displays name, ID number, email address, and phone number.
+
+**Event panel** — event name, ticket identifier, description, start date, start time, and end time.
+
+**Ticket panel** — internal ticket identifier, seat assignment, zone, and active/inactive status indicator. Users with the `change ticketsStatus` permission also see a status selector to update the ticket state.
+
+**QR code panel** — a scannable QR code generated from an encrypted string combining the event ID and ticket ID. The QR payload is signed with a per-event security PIN retrieved from Firebase.
+
+**Ledger panel** — a history of status changes and scan events for the ticket.
+
+<Note>
+  The QR code is generated client-side using a security PIN fetched from Firebase. If the PIN is unavailable, the QR code will not be displayed.
+</Note>
+
+## Ticket search
+
+The search page at `/buscar-ticket` lets you look up any ticket without knowing which event it belongs to.
+
+<Steps>
+  <Step title="Open the search page">
+    Navigate to `/buscar-ticket`. A centered search card is displayed.
+  </Step>
+  <Step title="Enter the ticket identifier">
+    Type the ticket's unique identifier into the input field. This is the same ID visible in the ticket list and on the ticket detail view.
+  </Step>
+  <Step title="Submit the search">
+    Click **Buscar**. TMT calls the `tickets_individual` Firebase function with the provided identifier.
+  </Step>
+  <Step title="Review the result">
+    If a matching ticket is found, TMT redirects you to `/ticket-consultado` and displays the full ticket record. If no ticket matches, an error toast is shown and you remain on the search page.
+  </Step>
+</Steps>
+
+### Query result page
+
+The `/ticket-consultado` page renders the same detail layout as the regular ticket detail view — customer info, event panel, ticket panel, QR code, and ledger — using the ticket data returned by the search function.
+
+## Offline tickets
+
+Tickets sold at physical box offices (taquillas) are recorded in Firestore under the same `events/{event_id}/tickets` collection as online tickets. They appear in the ticket list alongside online tickets and carry the same fields. The `office_name` field on the associated order identifies which box office processed the sale.

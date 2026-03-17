@@ -1,0 +1,151 @@
+---
+title: Authentication providers
+description: How TMT authenticates users using Auth0 and Firebase, and how route guards protect the application.
+---
+
+TMT uses two complementary authentication systems: **Auth0** for identity management and login flows, and **Firebase Authentication** for back-end service access. Route guards built on top of these systems control which pages users can access based on their authentication state and role permissions.
+
+## Authentication providers
+
+<Tabs>
+  <Tab title="Auth0">
+    Auth0 is the primary identity provider for TMT. It handles user login, session management, and token issuance.
+
+    **Package**: `@auth0/auth0-spa-js`  
+    **Context file**: `src/guards/auth0/Auth0Context.js`
+
+    ### How it works
+
+    At app startup, `Auth0Context` initializes an `Auth0Client` instance using the environment variables `VITE_AUTH0_CLIENT_ID` and `VITE_AUTH0_DOMAIN`. It then calls `checkSession()` to restore any existing session silently.
+
+    ```javascript
+    auth0Client = new Auth0Client({
+      domain: auth0Config.domain,
+      clientId: auth0Config.client_id,
+      authorizationParams: { redirect_uri: window.location.origin },
+    });
+    await auth0Client.checkSession();
+    ```
+
+    Login is triggered via a popup:
+
+    ```javascript
+    await auth0Client.loginWithPopup();
+    ```
+
+    After a successful login, the user object is retrieved with `auth0Client.getUser()` and stored in React context. The context exposes `isAuthenticated`, `user`, `signin`, `logout`, and `resetPassword`.
+
+    ### Required environment variables
+
+    | Variable | Description |
+    |---|---|
+    | `VITE_AUTH0_CLIENT_ID` | Your Auth0 application client ID |
+    | `VITE_AUTH0_DOMAIN` | Your Auth0 tenant domain (e.g., `your-tenant.auth0.com`) |
+  </Tab>
+  <Tab title="Firebase">
+    Firebase provides the real-time database, Firestore, Storage, and Cloud Functions that power TMT's back-end. Firebase Authentication is also initialized as part of the Firebase SDK setup.
+
+    **Package**: `firebase/compat/app` (Firebase v9 compat mode)  
+    **Config file**: `src/guards/firebase/Firebase.js`
+
+    ### Initialized services
+
+    | Export | Service |
+    |---|---|
+    | `Auth` | `firebase.auth()` — Firebase Authentication instance |
+    | `Firestore` | `firebase.firestore()` — Firestore database |
+    | `Db` | `firebase.database()` — Realtime Database |
+    | `Storage` | `getStorage(app)` — Firebase Cloud Storage |
+
+    ### Required environment variables
+
+    | Variable | Description |
+    |---|---|
+    | `VITE_FIREBASE_API_KEY` | Firebase project API key |
+    | `VITE_FIREBASE_AUTH_DOMAIN` | Firebase auth domain |
+    | `VITE_FIREBASE_PROJECT_ID` | Firebase project ID |
+    | `VITE_FIREBASE_STORAGE_BUCKET` | Cloud Storage bucket name |
+    | `VITE_FIREBASE_MESSAGING_SENDER_ID` | Firebase Messaging sender ID |
+    | `VITE_FIREBASE_APP_ID` | Firebase app ID |
+    | `VITE_FIREBASE_MEASUREMENT_ID` | Firebase Analytics measurement ID |
+
+    All variables must be present in the environment before the app starts. Firebase initializes only once — the `if (!firebase.apps.length)` guard prevents double-initialization.
+
+    ### Cloud functions
+
+    TMT uses Firebase Cloud Functions extensively. All callable functions are initialized at startup and exported from `Firebase.js`. Key functions include:
+
+    | Function | Purpose |
+    |---|---|
+    | `validateUserPlatform` | Validate a user's platform access on login |
+    | `create_staff` / `create_client` / `create_collaborator` | Provision user accounts |
+    | `tickets_generate` | Generate tickets for an event |
+    | `office_pin_set` | Set or update a taquilla's PIN |
+    | `conciliation_data` | Run the conciliation process |
+    | `split_payout` | Process a revenue split payout |
+    | `send_email` / `send_notifications` | Outbound messaging |
+  </Tab>
+</Tabs>
+
+## Route guards
+
+TMT uses three guard components to control access to routes.
+
+### AuthGuard
+
+**File**: `src/guards/authGuard/AuthGuard.js`
+
+`AuthGuard` wraps all routes that require a logged-in user. On mount, it checks `isAuthenticated` from the auth context. If the user is not authenticated, they are redirected to `/auth/login`.
+
+```jsx
+// Usage in router config
+<AuthGuard>
+  <Dashboard />
+</AuthGuard>
+```
+
+This guard runs on every render and re-evaluates when the authentication state changes.
+
+### GuestGuard
+
+**File**: `src/guards/authGuard/GuestGaurd.js`
+
+`GuestGuard` wraps authentication pages such as `/auth/login` and `/auth/register`. If an already-authenticated user visits one of these pages, they are redirected to the home route (`/`). This prevents logged-in users from accidentally accessing the login page.
+
+```jsx
+// Usage in router config
+<GuestGuard>
+  <LoginPage />
+</GuestGuard>
+```
+
+### PermissionGuard
+
+**File**: `src/guards/authGuard/PermissionGuard.js`
+
+`PermissionGuard` enforces fine-grained access control using the CASL ability from `AbilityContext`. It accepts an `action` and a `subject` prop. If the current user's ability does not satisfy the check, they are redirected to `/auth/permissions`.
+
+```jsx
+// Usage in router config
+<PermissionGuard action="view" subject="ViewPlatformSettings">
+  <PlatformSettings />
+</PermissionGuard>
+```
+
+See [Roles and access control](/administration/roles-access-control) for the full list of permission subjects and which roles can access them.
+
+## Permissions validator page
+
+The route `/auth/permissions` is the access-denied landing page. Users are redirected here automatically by `PermissionGuard` when they attempt to access a route their role does not permit. The page informs the user they do not have the necessary permissions and provides a way to return to the dashboard.
+
+## Security best practices
+
+<Warning>
+Never commit Auth0 credentials or Firebase API keys to source control. Always use environment variables (`.env` files) and add `.env` to your `.gitignore`. Rotate keys immediately if they are accidentally exposed.
+</Warning>
+
+- **Use environment variables** for all credentials. TMT reads them via `import.meta.env.VITE_*` at build time.
+- **Restrict Firebase security rules** to prevent unauthorized reads and writes. The app-level guards prevent unauthenticated UI access, but Firestore and Storage rules are the authoritative enforcement layer.
+- **Scope Auth0 tokens** to only the APIs and resources your application needs. Avoid requesting broad scopes.
+- **Validate on the server side**. The `validateUserPlatform` cloud function checks that a user's Auth0 identity has a corresponding active account in Firestore before granting back-end access.
+- **Re-authenticate before sensitive changes**. The account security tab uses `reauthenticateWithCredential` from Firebase Auth before allowing a password change, reducing the risk of session hijacking.

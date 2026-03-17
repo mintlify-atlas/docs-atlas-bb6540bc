@@ -1,0 +1,96 @@
+---
+title: Payout accounts overview
+description: Learn how to create and manage payout accounts (Cuentas de Pago) used to disburse funds to clients after an event.
+---
+
+A **payout account** (Cuenta de Pago) is a bank or digital payment destination registered in TMT to receive client disbursements. Each payout account is tied to a payment type, a currency, a country, and a specific payment method (such as a bank transfer or mobile wallet). When a client is owed funds after an event, the platform transfers the balance to their registered payout account.
+
+<CardGroup cols={2}>
+  <Card title="Payout account list" icon="list" href="/features/payouts/overview#payout-account-list">
+    View and search all registered payout accounts.
+  </Card>
+  <Card title="Creating a payout account" icon="plus" href="/features/payouts/overview#creating-a-payout-account">
+    Register a new bank or digital payment destination.
+  </Card>
+  <Card title="Account detail" icon="eye" href="/features/payouts/overview#payout-account-detail">
+    Review the full configuration and status of a payout account.
+  </Card>
+  <Card title="Client payouts" icon="send" href="/features/payouts/overview#client-payouts">
+    Initiate and track disbursements to client accounts.
+  </Card>
+</CardGroup>
+
+## Payout account list
+
+Navigate to `/cuentas-pago` to open the list of all payout accounts registered on the platform. The table supports search and column sorting so you can quickly locate a specific account by name, method, currency, or country.
+
+## Creating a payout account
+
+Navigate to `/cuentas-pago-crear` or click **Añadir Cuenta de Pago** in the list view to open the creation form.
+
+<Steps>
+  <Step title="Enter the account name">
+    In the **Nombre** field, enter a descriptive label for this payout account (for example, "Cuenta Bancaria Venezuela - Bolívares"). This name appears in dropdown selectors throughout the platform.
+  </Step>
+  <Step title="Select the payment type">
+    Choose a value from **Tipo de Pago**. The available types are loaded from the platform's payment type catalog (for example: bank transfer, mobile payment). Your selection determines which methods become available in the next step.
+  </Step>
+  <Step title="Select the currency">
+    Choose the **Moneda** (currency) for this account. The currency and payment type together filter the list of specific methods.
+  </Step>
+  <Step title="Select the method">
+    Choose a value from **Método**. This field is enabled only after you select both a payment type and a currency. The method represents the exact payment rail (for example, a specific bank or mobile payment network).
+  </Step>
+  <Step title="Fill in the method-specific fields">
+    Depending on the method selected, additional fields appear in the **Datos** section below. Common fields include:
+    - **Banco** — the bank institution (shown when the method requires a bank account)
+    - **Número de cuenta** — the account number
+    - **Número de identificación** — the account holder's ID number
+    - **Nombre** — the account holder's full name
+    - **Teléfono** — phone number linked to the account
+    - **Correo electrónico** — email address for payment notifications
+  </Step>
+  <Step title="Save the account">
+    Click **Guardar** to register the payout account. You are returned to the list automatically. Click **Cancelar** to discard the form and go back without saving.
+  </Step>
+</Steps>
+
+<Warning>
+  The **Método** field is disabled until both **Tipo de Pago** and **Moneda** are selected. Set those two fields first before looking for a specific method.
+</Warning>
+
+## Editing a payout account
+
+Navigate to `/cuentas-pago-editar?id={accountId}` or click the edit action from the list to modify an existing payout account. The edit form contains the same fields as the creation form, pre-populated with the current values. After making changes, click **Guardar** to apply them.
+
+## Payout account detail
+
+Navigate to `/cuentas-pago-detalles?id={accountId}` to view the full record of a payout account. The detail view is split into two panels.
+
+### Main panel
+
+**Method details**
+- Name, method, and type
+- Currency (name and code)
+- Country
+- Creation date
+
+**Contact data**
+- Account holder name
+- Email address
+- Phone number
+
+### Side panel
+
+The side panel shows the account's current **status** (ACTIVO or INACTIVO) and its unique system ID.
+
+## Client payouts
+
+The client payout workflow is separate from the payout account registry:
+
+- **`/payouts-cliente`** — Lists all payout orders initiated for clients, showing the amount, status, and destination account for each disbursement.
+- **`/crear-payouts-cliente`** — Opens the form to create a new client payout, where you select the client, the amount to disburse, and the target payout account.
+
+<Info>
+  A payout account must be registered and active before it can be selected as a disbursement destination in a client payout order.
+</Info>

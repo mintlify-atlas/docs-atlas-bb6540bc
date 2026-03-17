@@ -1,0 +1,70 @@
+---
+title: Introduction
+description: TradeMaster Transactions (TMT) — a comprehensive platform for event ticketing, transaction management, and venue operations.
+---
+
+# TradeMaster Transactions (TMT)
+
+TradeMaster Transactions is an all-in-one SaaS platform designed for event organizers, venue operators, and ticketing companies. It combines event management, ticket sales, financial tracking, and user administration into a single, role-based system.
+
+<CardGroup cols={2}>
+  <Card title="Quick Start" icon="rocket" href="/getting-started/quickstart">
+    Get your account set up and manage your first event in minutes.
+  </Card>
+  <Card title="Authentication" icon="lock" href="/getting-started/authentication">
+    Learn how to log in, register, and recover access to your account.
+  </Card>
+  <Card title="Roles & Permissions" icon="users" href="/concepts/roles-permissions">
+    Understand the user roles and access control model in TMT.
+  </Card>
+  <Card title="Events Lifecycle" icon="calendar" href="/concepts/events-lifecycle">
+    Learn how events are created, configured, and managed end-to-end.
+  </Card>
+</CardGroup>
+
+## What is TMT?
+
+TMT is built for organizations that sell tickets to events — concerts, theater shows, sports games, conferences, and more. It provides a centralized back-office to manage:
+
+- **Events** — Create, configure, and publish events with seating zones and pricing splits
+- **Tickets** — Issue, validate, and search tickets with QR code support
+- **Orders & Transactions** — Track every sale and financial movement in real time
+- **Users** — Manage staff, clients, collaborators, and end customers
+- **Offices (Taquillas)** — Run physical ticket offices with offline ticket support
+- **Payouts** — Handle client payouts and custody accounts
+- **Marketing** — Create and manage promotional campaigns
+- **Portals** — Deploy branded client portals for end-user ticket access
+
+## Platform architecture
+
+TMT is a React-based single-page application backed by Firebase for real-time data storage and Auth0 for identity management. Role-based access control is enforced throughout using CASL, ensuring each user only sees and interacts with what they are permitted to.
+
+<CardGroup cols={3}>
+  <Card title="Dashboard" icon="chart-line" href="/features/dashboard">
+    Real-time analytics and KPIs
+  </Card>
+  <Card title="Events & Venues" icon="ticket" href="/features/events/overview">
+    Full event lifecycle management
+  </Card>
+  <Card title="Financial" icon="circle-dollar-sign" href="/features/transactions/overview">
+    Transactions, payouts, and reconciliation
+  </Card>
+  <Card title="Users" icon="user-group" href="/features/users/staff">
+    Multi-role user management
+  </Card>
+  <Card title="Operations" icon="building" href="/features/offices/overview">
+    Offices, contracts, and portals
+  </Card>
+  <Card title="Administration" icon="gear" href="/administration/platform-settings">
+    Settings and security configuration
+  </Card>
+</CardGroup>
+
+## Key capabilities
+
+- **Role-based access control** — Fine-grained permissions using CASL ensure each user type (Staff, Client, Collaborator, Customer) sees only what they are authorized to access.
+- **Real-time data** — Firebase Firestore powers live dashboards and data updates across the platform.
+- **Multi-language support** — The platform supports internationalization via i18next, making it suitable for multi-region deployments.
+- **PDF generation** — Reports, contracts, and tickets can be exported as PDFs directly from the platform.
+- **QR code ticketing** — Tickets include QR codes for fast, reliable entry validation at events.
+- **Offline ticket support** — Physical offices (taquillas) can operate with offline ticket issuance when connectivity is limited.

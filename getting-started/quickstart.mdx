@@ -1,0 +1,97 @@
+---
+title: Quickstart
+description: Get up and running with TradeMaster Transactions in minutes.
+---
+
+This guide walks you through accessing the platform for the first time, logging in, exploring the dashboard, and completing your first event setup.
+
+<Steps>
+  <Step title="Access the platform">
+    Open your browser and navigate to the TMT application URL provided by your administrator. The platform runs entirely in the browser — no installation is required.
+
+    <Note>
+      TMT is a staff-only administration panel. You must have a valid staff account before you can log in. Contact your administrator if you do not have credentials.
+    </Note>
+  </Step>
+
+  <Step title="Log in with your credentials">
+    You will be redirected to `/auth/login` automatically if you are not already authenticated. Enter your **email address** and **password**, then click **Iniciar sesión**.
+
+    The platform validates your account against the `u_staff` collection in Firebase before granting access. If your account is inactive or not authorized, you will see an error and will not be permitted to continue.
+
+    <Note>
+      If you have forgotten your password, click the **¿Has olvidado tu contraseña?** link on the login page to start the reset flow at `/auth/forgot-password`.
+    </Note>
+  </Step>
+
+  <Step title="Explore the dashboard">
+    After a successful login you land on the **Modern Dashboard** at `/dashboards/modern`. This overview surface gives you a real-time snapshot of the platform:
+
+    - **Total sales** — platform-wide revenue figures
+    - **Ticket sales vs. capacity** — sold versus available seats across active events
+    - **Revenue by office** — breakdown of sales per ticketing office
+    - **Money distribution** — financial split across clients and platform fees
+
+    The sidebar on the left contains the full navigation. The items visible to you depend on your account role — see [Roles and permissions](/concepts/roles-permissions) for details.
+  </Step>
+
+  <Step title="Create a venue">
+    Before creating an event you need at least one event venue registered in the system.
+
+    1. In the sidebar, navigate to **Salones de Eventos**.
+    2. Click **Crear** to open the new venue form at `/salones-eventos-crear`.
+    3. Fill in the venue name, address, and capacity information.
+    4. Save the venue.
+
+    <Note>
+      You must have the `ViewEventVenueCreate` permission to access this page. If you are redirected to `/auth/permissions`, ask your administrator to grant you the required role.
+    </Note>
+  </Step>
+
+  <Step title="Create your first event">
+    With a venue in place, you can create an event.
+
+    1. Navigate to **Eventos** in the sidebar.
+    2. Click **Crear Evento** to open the event creation form at `/eventos-crear`.
+    3. Complete the required fields: event name, associated client, linked venue, date and time, and any other metadata.
+    4. Save the event. You will be taken to the event detail view at `/evento-detalles`.
+  </Step>
+
+  <Step title="Configure zones and seats">
+    After creating an event, configure how tickets are structured.
+
+    1. From the event detail view, open the **Configurar Evento** screen at `/eventos-config`.
+    2. Define the seating zones and financial adjustments for the event.
+    3. To set up individual zone details navigate to `/eventos-config-zonas` (SetupZonesEvent).
+    4. To configure the revenue split, navigate to `/eventos-config-split` (SetupSplitEvent — "Ajustes Financieros").
+  </Step>
+
+  <Step title="Issue tickets">
+    Once the event is configured, you can generate tickets.
+
+    1. Navigate to the **Tickets** section at `/tickets?id=<event_id>`.
+    2. Use the ticket generation tools to create tickets for each zone.
+    3. Individual ticket details are accessible from `/tickets-detalles`.
+
+    <Note>
+      Ticket generation calls the `tickets_generate` Firebase Cloud Function. Ensure the event configuration is complete before generating tickets, as zone and split settings affect the output.
+    </Note>
+  </Step>
+</Steps>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="lock" href="/getting-started/authentication">
+    Learn about login flows, password reset, and session management.
+  </Card>
+  <Card title="Roles and permissions" icon="shield" href="/concepts/roles-permissions">
+    Understand which features each role can access.
+  </Card>
+  <Card title="Event lifecycle" icon="calendar" href="/concepts/events-lifecycle">
+    Follow an event from creation through completion.
+  </Card>
+  <Card title="Tickets and orders" icon="ticket" href="/concepts/tickets-orders">
+    Understand how orders generate tickets and how validation works.
+  </Card>
+</CardGroup>

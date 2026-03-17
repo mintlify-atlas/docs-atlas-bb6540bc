@@ -1,0 +1,139 @@
+---
+title: Roles and permissions
+description: How user roles map to platform access using the CASL permission system in TMT.
+---
+
+TMT enforces access control using [CASL](https://casl.js.org/), specifically the `@casl/ability` and `@casl/react` packages. Every protected route is wrapped in a `PermissionGuard` that checks whether the current user's computed ability allows the required action on the required subject. If not, the user is redirected to `/auth/permissions`.
+
+## User types
+
+TMT has four main categories of platform users:
+
+| User type | Description |
+|---|---|
+| **Staff** | Internal team members who administer the platform. They are stored in the `u_staff` Firestore collection and are the only users who can log in to the admin panel. |
+| **Clients** | Organizations or individuals who contract TMT to manage their events. Clients are managed at `/usuarios-clients`. |
+| **Collaborators** | External partners or helpers assigned to specific events. Managed at `/usuarios-collaborators`. |
+| **Customers** | End users who purchase tickets. Their orders and tickets can be viewed under `/usuarios-customers`. |
+
+<Info>
+  Only **Staff** accounts can authenticate with the admin panel. Clients, Collaborators, and Customers are managed entities within the system — they do not log in here.
+</Info>
+
+## Staff roles
+
+Within the Staff user type, each account is assigned an `account_type` field in Firestore. The `defineAbilitiesFor` function in `src/guards/contexts/DefineAbilities.js` reads this field and builds a CASL `Ability` object for the session.
+
+The five defined staff roles are:
+
+| Role | Description |
+|---|---|
+| **Administrador** | Full access — `can('manage', 'all')`. No restrictions. |
+| **Coordinador** | Broad operational access. Can manage clients, collaborators, events, tickets, credentials, contracts, venues, and offices. Cannot create or edit other staff members, change event/ticket statuses, or access payouts and campaigns. |
+| **Contador** | Read-only financial focus. Can view clients, contracts, events, event details, and payout information. Cannot create users, events, tickets, or credentials. |
+| **Soporte** | Read-only support access. Can view events, event configuration, ticket details, and venue details. Cannot create or edit anything, and cannot access contracts, staff lists, or payouts. |
+| **Creador de Sala de Eventos** | Narrowly scoped to venue management. Can create and edit event venues. Has no access to events, tickets, users, contracts, or financial features. |
+
+## How CASL is applied
+
+At login, `defineAbilitiesFor(user)` is called with the authenticated user's profile. The resulting `Ability` instance is placed on the `AbilityContext` (defined in `src/guards/contexts/AbilityContext.js`) using React context.
+
+The `PermissionGuard` component reads from this context:
+
+```javascript
+// src/guards/authGuard/PermissionGuard.js
+const PermissionGuard = ({ children, action, subject }) => {
+    const ability = React.useContext(AbilityContext);
+    const navigate = useNavigate();
+
+    React.useEffect(() => {
+        if (!ability.can(action, subject)) {
+            navigate("/auth/permissions", { replace: true });
+        }
+    }, [navigate]);
+
+    return children;
+};
+```
+
+Every route that uses `PermissionGuard` declares an `action` (always `"view"` for route-level guards) and a `subject` string. If the ability check fails, the user is redirected immediately.
+
+In view templates, fine-grained UI elements use the `<Can>` component from `@casl/react`:
+
+```jsx
+<Can I="change" a="eventsStatus" ability={ability}>
+  <StatusSelect eventData={eventData} />
+</Can>
+```
+
+This means a status selector only renders for roles that have the `change` action on `eventsStatus` — namely **Administrador** only.
+
+## Permission subjects reference
+
+The table below lists every permission subject used in `Router.js` along with the route it protects.
+
+| Subject | Route | Description |
+|---|---|---|
+| `ViewStaff` | `/usuarios-staff` | View staff list |
+| `ViewStaffDetail` | `/usuarios-detalle-staff` | View individual staff profile |
+| `ViewStaffCreate` | `/usuarios-staff-crear` | Create a new staff member |
+| `ViewStaffEdit` | `/usuarios-staff-editar` | Edit a staff member |
+| `ViewClients` | `/usuarios-clients` | View clients list |
+| `ViewClientsDetail` | `/usuarios-detalle-cliente` | View individual client profile |
+| `ViewClientsCreate` | `/usuarios-clientes-crear` | Create a new client |
+| `ViewClientsEdit` | `/usuarios-clientes-editar` | Edit a client |
+| `ViewCollaborators` | `/usuarios-collaborators` | View collaborators list |
+| `ViewCollaboratorsDetail` | `/usuarios-detalle-colaborador` | View collaborator profile |
+| `ViewCollaboratorsCreate` | `/usuarios-collab-crear` | Create a new collaborator |
+| `ViewCollaboratorsEdit` | `/usuarios-collab-editar` | Edit a collaborator |
+| `ViewCollaboratorsEvents` | `/eventos-colaborador` | View collaborator's assigned events |
+| `ViewClientCollaborators` | `/cliente-collaborators` | View collaborators under a specific client |
+| `ViewCustomers` | `/usuarios-customers` | View customers list |
+| `ViewCustomersDetail` | `/usuarios-detalle-customers` | View customer profile |
+| `ViewCustomerTickets` | `/lista-tickets-customer` | View a customer's tickets |
+| `ViewCustomerOrders` | `/lista-ordenes-customer` | View a customer's orders |
+| `ViewEventVenue` | `/salones-eventos` | View event venues list |
+| `ViewEventVenueDetail` | `/salones-eventos-detalle` | View venue detail |
+| `ViewEventVenueCreate` | `/salones-eventos-crear` | Create a new venue |
+| `ViewEventVenueEdit` | `/salones-eventos-editar` | Edit a venue |
+| `ViewEventVenueEvents` | `/salones-eventos-eventos` | View events linked to a venue |
+| `ViewEvents` | `/eventos` | View events list |
+| `ViewClientEvents` | `/cliente-eventos` | View events scoped to a client |
+| `ViewEventsCreate` | `/eventos-crear` | Create a new event |
+| `ViewEventsEdit` | `/eventos-editar` | Edit an event |
+| `ViewEventsConfig` | `/eventos-config` | Configure event zones and adjustments |
+| `ViewEventsConfigZone` | `/eventos-config-zonas` | Configure individual zone details |
+| `ViewEventsConfigSplit` | `/eventos-config-split` | Configure revenue split |
+| `ViewEventsDetail` | `/evento-detalles` | View event detail page |
+| `ViewEventsCredentials` | `/eventos-credenciales` | View event credentials list |
+| `ViewEventsCredentialsCreate` | `/eventos-credenciales-crear` | Create new credential |
+| `ViewEventsCredentialsCreateDetail` | `/eventos-credenciales-detalles` | View credential detail |
+| `ViewEventsNotifications` | `/eventos-notificaciones` | View event notifications list |
+| `ViewEventsNotificationsCreate` | `/eventos-notificaciones-crear` | Create a new notification |
+| `ViewTickets` | `/tickets` | View ticket list for an event |
+| `ViewTicketsDetail` | `/tickets-detalles` | View individual ticket detail |
+| `TicketSearchView` | `/buscar-ticket` | Search for a ticket by identifier |
+| `QueryTicketDisplay` | `/ticket-consultado` | Display a queried ticket's details |
+| `ViewContracts` | `/contracts` | View contracts list |
+| `ViewContractsDetail` | `/contract-details` | View a contract |
+| `ViewContractsCreate` | `/create-contracts` | Create a contract |
+| `ViewAddendum` | `/create-addendum` | Create an addendum |
+| `ViewAddendumDetail` | `/addendum-details` | View an addendum |
+| `ViewPayouts` | `/cuentas-pago` | View payout accounts |
+| `CreatePayouts` | `/cuentas-pago-crear` | Create a payout account |
+| `ViewPayout` | `/cuentas-pago-detalles` | View payout details |
+| `EditPayouts` | `/cuentas-pago-editar` | Edit a payout account |
+| `ViewClientPayouts` | `/payouts-cliente` | View payouts for a client |
+| `CreateClientPayouts` | `/crear-payouts-cliente` | Create a payout for a client |
+| `ViewPlatformSettings` | `/platform-settings` | Access platform settings |
+| `ViewOfficeList` | `/lista-taquillas` | View ticketing offices list |
+| `ViewOfficeDetails` | `/detalles-taquilla` | View office details |
+| `ViewCreateOffice` | `/crear-taquilla` | Create a ticketing office |
+| `ViewEditOffice` | `/editar-taquilla` | Edit a ticketing office |
+| `ViewOfficeEventList` | `/lista-eventos-taquilla` | View events active in an office |
+| `ViewOfficeTransactionList` | `/transacciones-taquilla` | View office transactions |
+| `ViewOfficesSalesList` | `/lista-ventas-taquilla` | View sales list for an office |
+
+<Info>
+  Routes without a `PermissionGuard` wrapper (such as `/ordenes`, `/transacciones`, and `/conciliaciones`) are accessible to any authenticated staff member regardless of role.
+</Info>

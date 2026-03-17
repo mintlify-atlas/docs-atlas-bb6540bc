@@ -1,0 +1,118 @@
+---
+title: Zone and split setup
+description: Configure ticket zones, seating maps, and revenue splits for an event using the three-step setup flow at /eventos-config, /eventos-config-zonas, and /eventos-config-split.
+---
+
+After creating an event, you must configure its zones and financial adjustments before setting it to active. The setup flow spans three routes:
+
+| Route | Page | Purpose |
+|-------|------|---------|
+| `/eventos-config?id={id}` | SetupEvent | Overview: zone summary and financial adjustments |
+| `/eventos-config-zonas?id={id}` | SetupZonesEvent | Define and configure ticket zones |
+| `/eventos-config-split?id={id}` | SetupSplitEvent | Configure revenue split percentages |
+
+## Setup overview (`/eventos-config`)
+
+The SetupEvent page loads the event from Firestore and shows two panels side by side:
+
+- **EventZones** (left, 8/12 columns) — A summary of currently configured zones with their seat counts, prices, and status.
+- **SetupFinancialAdjustments** (right, 4/12 columns) — Quick access to review or update the financial adjustment settings.
+
+Use this page to review the full picture before confirming zones.
+
+## Configuring zones (`/eventos-config-zonas`)
+
+<Steps>
+  <Step title="Open the zone configuration form">
+    Navigate to `/eventos-config-zonas?id={eventId}`. The page loads the event's venue name and maximum capacity from Firestore.
+
+    At the top, a **Resumen de Ganancias** panel shows running projections as you add zones:
+    - Total seats configured vs. venue capacity
+    - Potential revenue at full sale (seat count × price)
+    - Corporate revenue (using corporate prices)
+    - TMT service commission and client income split (shown when financial data is available)
+  </Step>
+
+  <Step title="Add a zone manually">
+    Fill in the zone form below the summary. All fields are required unless noted:
+
+    | Field | Description |
+    |-------|-------------|
+    | **ID** | Unique identifier for this zone. Must be unique within the event. |
+    | **Nombre** | Display name shown to buyers (e.g., "VIP", "General") |
+    | **Tipo** | Zone type, selected from platform configuration |
+    | **Precio** | Public ticket price |
+    | **Precio Corporativo** | Discounted price for corporate buyers (defaults to **Precio** if not set) |
+    | **Asientos** | Number of seats in this zone; cannot exceed remaining venue capacity |
+    | **Descripción** | Zone description visible to buyers |
+    | **Color** | Visual color for the zone, selected via color picker |
+    | **Público** | Toggle between public and private visibility |
+    | **Estado** | Active or inactive |
+
+    Click **Agregar** (the submit button) to add the zone to the preview table. You can add multiple zones before saving.
+
+    <Warning>
+    The total seats across all zones cannot exceed the venue's maximum capacity. Adding a zone that would exceed capacity is blocked with an error.
+    </Warning>
+  </Step>
+
+  <Step title="Import zones from a Seats.io map (optional)">
+    If the event has a Seats.io seat map configured, an **Importar desde Mapa** button appears. Clicking it opens the SeatsioZoneImporter modal, which:
+
+    1. Loads the categories and sections from the Seats.io chart.
+    2. Displays them as importable zone templates.
+    3. Appends the selected sections as new zone rows in the table.
+
+    Imported zones are pre-filled with the category name and key from the map. You can then edit prices and other details in the inline table editor.
+
+    <Note>
+    When saving, zones are automatically linked to Seats.io sections and categories by name matching. A zone named "VIP" will be linked to the corresponding Seats.io section if one exists.
+    </Note>
+  </Step>
+
+  <Step title="Edit or delete zones">
+    The zone table supports inline editing. Click the edit icon on any row to modify fields directly in the table. Click the delete icon to remove a zone.
+
+    Once zones look correct, click **Guardar** to write the configuration to `events/{id}/setup/zones` in Firestore.
+  </Step>
+
+  <Step title="Confirm zones">
+    After saving, a **Confirmar Zonas** action marks the zone setup as complete by setting `status: true` on the zones document. This is required before the event can go active.
+
+    <Warning>
+    Confirming zones is irreversible through the UI. If you need to change zones after confirmation, contact an administrator.
+    </Warning>
+  </Step>
+</Steps>
+
+## Configuring revenue splits (`/eventos-config-split`)
+
+The SetupSplitEvent page loads `SetupEventSplitForm`, which reads the event's legal contract from `events/{id}/setup/financial` and allows you to adjust how revenue is distributed between TMT and the client.
+
+<Tabs>
+  <Tab title="What splits control">
+    Revenue splits define the percentage of ticket revenue that goes to each party. The split is stored under `costs_variables` in the financial setup document, with a `Tickets` entry that holds the TMT service commission percentage.
+
+    The remaining percentage is the client's share and is calculated automatically as `100 - TMT%`.
+  </Tab>
+  <Tab title="How splits affect zone setup">
+    When viewing `/eventos-config-zonas`, the Resumen de Ganancias panel reads the `Tickets` cost variable to show:
+    - **Ingreso (TMT entity)** — Commission amount at the configured percentage
+    - **Ingreso (client name)** — Client share at the remaining percentage
+
+    If no split is configured yet, only potential total revenue and an average price per ticket are shown.
+  </Tab>
+</Tabs>
+
+## Seats.io integration
+
+TMT integrates with [Seats.io](https://www.seats.io) via the `@seatsio/seatsio-react` package for interactive seat map management.
+
+| Concept | Description |
+|---------|-------------|
+| **Chart** | A reusable seat map design created in the Seats.io designer |
+| **Event** | An instance of a chart tied to a specific TMT event (created on event save) |
+| **Category** | A named grouping of seats in the chart that maps to a TMT zone |
+| **Section** | A physical section of the venue that can also map to a TMT zone |
+
+Zones are auto-linked to Seats.io categories and sections by matching the zone name or ID against chart data at save time. The link is stored in each zone's `seatsio_linked` field.

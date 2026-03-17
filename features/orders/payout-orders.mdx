@@ -1,0 +1,96 @@
+---
+title: Payout orders
+description: Manage and validate outgoing payment orders to clients and collaborators in TradeMaster Transactions.
+---
+
+Payout orders (ordenes de pago) are outgoing payments from TMT to clients or collaborators after an event. Unlike regular orders — which represent incoming revenue from ticket buyers — payout orders represent disbursements from TMT to the parties that organized or staffed an event.
+
+## Routes
+
+| Route | Description |
+|---|---|
+| `/ordenes-pago` | Payout order list (Split, Pending, Completed tabs) |
+| `/ordenes-pago-detalle` | Individual payout order detail and validation |
+
+## Payout order vs regular order
+
+| Aspect | Regular order | Payout order |
+|---|---|---|
+| Direction | Customer → TMT | TMT → Client/Collaborator |
+| Created by | Customer checkout | System after event settlement |
+| Contains | Tickets + transactions | Payment reference + bank account |
+| Final status | Activo / Inactivo | Pendiente / Completado |
+
+## Payout order list
+
+The list page at `/ordenes-pago` has three tabs:
+
+<Tabs>
+  <Tab title="Split">
+    Shows the revenue split detail for events — how the total ticket revenue is divided between TMT and the client according to the contract terms.
+  </Tab>
+  <Tab title="Ordenes de Pago Pendientes">
+    Lists all payout orders that have not yet been marked as completed. Columns include:
+
+    - Event name
+    - Status (**Pendiente** or **Completado**)
+    - Payment method
+    - Payout type
+    - Custody account
+    - Description
+    - Amount (USD)
+
+    Use the global search bar to filter by event name, amount, payment method, payout type, or description. Export the list using the download icon.
+  </Tab>
+  <Tab title="Ordenes de Pago Completadas">
+    Lists all payout orders where payment has been validated and marked as complete. Uses the same column layout as the pending tab.
+  </Tab>
+</Tabs>
+
+## Payout order detail
+
+Navigate to `/ordenes-pago-detalle?id={payout_order_id}` to open a specific payout order. The detail view shows:
+
+**Order details section:**
+- Event name
+- Payout type
+- Creation date
+- Payment method
+- Amount (USD)
+- Description
+
+**Account information section:**
+- Custody account — the custodian bank account that holds the funds
+- Entity — the client or collaborator receiving the payment
+
+**Status sidebar:**
+- Current payout status (**Pendiente** or **Completado**)
+
+## Payout validation process
+
+<Steps>
+  <Step title="Open the payout order">
+    Navigate to `/ordenes-pago-detalle?id={payout_order_id}`. If the payout is pending, a **Validar Orden de Pago** button appears at the top of the page.
+  </Step>
+  <Step title="Click Validar Orden de Pago">
+    A dialog opens where you can enter the payment details:
+    - Upload a payment receipt image or document
+    - Enter the payment reference number
+    - Enter the confirmed payment amount
+    - Select the payment date
+  </Step>
+  <Step title="Submit the validation">
+    Confirm the dialog. TMT uploads the receipt to Firebase Storage, saves the payment reference to the `orders_payout` Firestore document, and marks the order as completed.
+  </Step>
+  <Step title="Review the completed order">
+    The **Validar Orden de Pago** button changes to **Ver Comprobante de Pago**, which reopens the dialog in read-only mode to display the payment reference and uploaded receipt.
+  </Step>
+</Steps>
+
+<Note>
+  Only users with appropriate permissions can validate payout orders. Once validated, the payout status changes from **Pendiente** to **Completado** and the order moves from the pending tab to the completed tab.
+</Note>
+
+<Warning>
+  Payout validation cannot be undone. Confirm all payment details — reference number, amount, and date — before submitting.
+</Warning>

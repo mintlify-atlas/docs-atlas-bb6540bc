@@ -1,0 +1,84 @@
+---
+title: Portals
+description: Create and manage branded web portals that give end customers access to event listings and their tickets.
+---
+
+Portals are white-label web storefronts deployed under a custom subdomain (e.g., `client.eventmt.com`). Each portal is linked to a single client account, carries that client's branding, and connects to a virtual office to process payments. End customers visit the portal to browse events, purchase tickets, and access their order history.
+
+## Routes
+
+| Route | Description |
+|---|---|
+| `/portales` | Portals list |
+| `/portales-crear` | Create a new portal |
+| `/portales-editar` | Edit an existing portal |
+| `/portales-detalle` | Portal detail and analytics |
+
+## Setting up a portal
+
+<Note>
+Each client account can have at most one portal. Attempting to create a second portal for the same client will result in an error. Ensure the correct client is selected before saving.
+</Note>
+
+<Steps>
+  <Step title="Open the create form">
+    Navigate to `/portales` and click **Crear Portal** to go to `/portales-crear`.
+  </Step>
+  <Step title="Fill in core portal details">
+    Complete the required fields:
+    - **Nombre del Portal** — Internal name used in the TMT back-office.
+    - **Cliente** — The client account that owns this portal. A client can only have one portal.
+    - **Descripción del Portal** — A summary of the portal's purpose.
+    - **Taquilla para pagos** — A virtual office (office type "Virtual") that will handle payment processing. If no virtual office is selected, the platform's configured default office is used.
+  </Step>
+  <Step title="Configure the URL">
+    Enter the **Base** URL slug. This becomes the subdomain: `{slug}.eventmt.com`. The slug must be unique across all portals in the platform.
+  </Step>
+  <Step title="Upload branding images">
+    Provide two required images:
+    - **Logo del Portal** — The client's logo, displayed in the portal header.
+    - **Favicon del Portal** — The browser tab icon for the portal.
+
+    Both images are uploaded to Firebase Storage under `portals/{portalId}/`. The form will prevent saving if either image is missing.
+  </Step>
+  <Step title="Set contact information">
+    Fill in the contact details that appear on the portal's contact page:
+    - **Correos Electrónicos** — One or more contact email addresses. Use the **+** button to add additional emails.
+    - **Teléfono** — Contact phone number (7–15 digits).
+    - **Horario de Atención** — Days of the week and hours when the support line is staffed.
+    - **Oficina Principal** — A text description of the main office location (minimum 10 characters).
+  </Step>
+  <Step title="Pin the portal location on the map">
+    Use the embedded map to set the portal's geographic location. Click the map to place the pin. Latitude and longitude are required.
+  </Step>
+  <Step title="Add FAQs">
+    Add frequently asked questions that will appear on the portal. Each FAQ requires a **Pregunta** (question) and a **Respuesta** (answer). Click **Agregar Pregunta Frecuente** to add more entries.
+  </Step>
+  <Step title="Configure branding colors and social links">
+    Select the portal's **Color Primario** and **Color Secundario** using the color picker. Both colors are required. Optionally add social media profile URLs for Facebook, Instagram, X/Twitter, and YouTube.
+  </Step>
+  <Step title="Save">
+    Click **Guardar**. The portal record and its tenant mapping (`portals_tenants/{slug}.eventmt.com`) are written to Firestore in a single batch. On success, you are returned to the portals list.
+  </Step>
+</Steps>
+
+## Editing a portal
+
+Navigate to `/portales-editar?id={portalId}` to update an existing portal's configuration. The edit form mirrors the create form. Changes to branding images upload new files to Firebase Storage and update the stored URLs.
+
+## Portal detail
+
+Navigate to `/portales-detalle?id={portalId}` to view the full portal information, including the linked client, URL, branding assets, contact details, FAQs, and map location.
+
+## Portal and virtual offices
+
+Portals rely on a virtual office (taquilla of type **Virtual**) to process ticket purchases made through the portal's storefront. When creating a portal, select the appropriate virtual office from the **Taquilla para pagos** field. If your organization has a default virtual office configured in the platform setup, it will be used automatically when no office is explicitly chosen.
+
+## Permissions
+
+Access to portals requires the following conditions:
+
+- The user must be authenticated (enforced by `AuthGuard`).
+- The user's role must grant access to portal routes via the `PermissionGuard`.
+
+See [Roles and access control](/administration/roles-access-control) for role-to-permission mappings.

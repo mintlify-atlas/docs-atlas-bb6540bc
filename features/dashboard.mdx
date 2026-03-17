@@ -1,0 +1,76 @@
+---
+title: Dashboard
+description: Real-time platform analytics and KPIs for administrators managing events, offices, and revenue across TMT.
+---
+
+The Modern dashboard at `/dashboards/modern` gives administrators a live view of platform-wide metrics. It pulls data from Firebase Cloud Functions and automatically refreshes when you change filters.
+
+## Dashboard widgets
+
+<CardGroup cols={2}>
+  <Card title="TopCards" icon="rectangle-list">
+    Six KPI cards showing total clients, events, collaborators, taquillas, bolivar revenue, and USD revenue.
+  </Card>
+  <Card title="Tickets Vendidos" icon="chart-pie">
+    A donut chart and count comparing tickets sold against total allocated seats for the selected event.
+  </Card>
+  <Card title="Distribución por Cuentas" icon="circle-dollar-sign">
+    A pie chart breaking down total revenue across custody accounts with per-account totals.
+  </Card>
+  <Card title="Ventas por Taquilla" icon="building-store">
+    A ranked table of top-performing taquillas showing office name, event, total sales, and revenue.
+  </Card>
+  <Card title="Taquillas Activas" icon="toggle-on">
+    A pie chart showing active versus inactive taquillas for the selected event.
+  </Card>
+  <Card title="Ticket Average" icon="calculator">
+    Inline metric showing the average ticket price (total sales divided by tickets sold) when an event is selected.
+  </Card>
+</CardGroup>
+
+## Filtering data
+
+Click the **Filtros** toggle at the top of the dashboard to expand the filter panel. Three controls are available:
+
+| Filter | Description |
+|--------|-------------|
+| **Evento** | Scope all metrics to a single event. Required for seat availability and active-office data. |
+| **Desde** | Start date for the reporting period. Defaults to 7 days before today. |
+| **Hasta** | End date for the reporting period. Defaults to today. |
+
+<Note>
+Some widgets — **Tickets Vendidos** (percentage mode) and **Taquillas Activas** — only populate when a specific event is selected. Without an event filter, tickets sold shows a platform-wide count instead.
+</Note>
+
+Changing any filter immediately triggers a new data fetch. You can combine event and date filters to analyze revenue for a specific period of an event.
+
+## Firebase functions
+
+The dashboard calls the following Firebase Cloud Functions to populate its widgets:
+
+| Function | Widget | Requires event |
+|----------|--------|----------------|
+| `general_platform_data` | TopCards (clients, events, collaborators, taquillas) | No |
+| `sold_by_usbs` | TopCards (bolivar and USD revenue) | No |
+| `number_tickets_sold` | Tickets Vendidos (count only, no event selected) | No |
+| `number_tickets_vs_sold` | Tickets Vendidos (sold vs. allocated) | Yes |
+| `money_distribution` | Distribución por Cuentas | No |
+| `sold_by_office` | Ventas por Taquilla | No |
+| `offices_vs_offices_active` | Taquillas Activas | Yes |
+| `total_sales` | Ticket Average numerator | Yes |
+| `types_of_collaborators` | TopCards expandable collaborator breakdown | No |
+
+## KPI cards in detail
+
+The six TopCards at the top of the dashboard can be expanded or clicked:
+
+- **Clientes** — Total registered clients. Click the expand arrow to see a list of client names.
+- **Eventos** — Total events on the platform. Expand to see event names.
+- **Colaboradores** — Total collaborators broken down by account type (e.g., `VENDEDOR: 12`). Expand to see the breakdown.
+- **Taquillas** — Total ticket offices. Clicking the card navigates to `/lista-taquillas`.
+- **Ingreso en Bolívares** — Total bolivar revenue across the filtered period, formatted as `Bs.XXXX.XX`.
+- **Ingreso en Divisas** — Total USD revenue across the filtered period, formatted as `$XXXX.XX`.
+
+<Tip>
+Use the date range filters without selecting a specific event to get a platform-wide revenue summary across all events.
+</Tip>

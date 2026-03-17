@@ -1,0 +1,89 @@
+---
+title: Collaborators
+description: Create and manage collaborator accounts — ticket sellers, venue staff, and event-day personnel in TradeMaster Transactions.
+---
+
+Collaborators are individuals who work on events managed by a client or directly by TMT. They typically serve as ticket sellers at box offices, scanners at venue entrances, or other on-site event staff. Each collaborator account is linked to a client (or to TMT directly) and is assigned a collaborator type that determines their role.
+
+## Routes
+
+| Route | Description |
+|---|---|
+| `/usuarios-collaborators` | All collaborators list |
+| `/cliente-collaborators` | Collaborators filtered by client |
+| `/usuarios-detalle-colaborador` | Collaborator detail |
+| `/usuarios-collab-crear` | Create a new collaborator |
+| `/usuarios-collab-editar` | Edit an existing collaborator |
+| `/eventos-colaborador` | Events associated with a collaborator |
+
+## Collaborator list
+
+The list page at `/usuarios-collaborators` shows all collaborator accounts in a searchable, paginated table. Use `/cliente-collaborators?id={client_id}` to filter collaborators by client.
+
+## Collaborator detail view
+
+Navigate to `/usuarios-detalle-colaborador?id={collaborator_id}` to open a collaborator profile. The page has:
+
+- **Profile banner** — photo, name, and collaborator type
+- **Introduction card** (left column) — full name, email, phone, and address
+- **Client info card** (right column) — the client or producer this collaborator is assigned to, including the client name and ID
+
+Data is fetched from the `u_collaborators` Firestore collection.
+
+## Creating a collaborator
+
+<Steps>
+  <Step title="Open the creation form">
+    From the collaborators list, click **Crear Usuario**. This opens `/usuarios-collab-crear`.
+  </Step>
+  <Step title="Upload a profile photo (optional)">
+    Click **Cargar** to select a JPG, GIF, or PNG image. Maximum file size is 800 KB.
+  </Step>
+  <Step title="Set a password">
+    Enter and confirm a password (minimum 6 characters).
+  </Step>
+  <Step title="Fill in personal details">
+    Complete the following required fields:
+
+    - **Nombre** — full name
+    - **Correo Electrónico** — email address
+    - **Tipo de Identificación** — document type
+    - **Número de Identificación** — numeric ID number
+    - **Teléfono** — international phone number (defaults to Venezuelan format)
+  </Step>
+  <Step title="Set operational data">
+    In the **Datos Operativos** section:
+
+    - **Tipo de Cuenta** — select the collaborator type from the configured `collaborator_types` list (e.g. scanner, seller, supervisor)
+    - **Cliente / Productor** — select the client this collaborator belongs to. Select **TradeMaster Transactions** to assign the collaborator directly to TMT rather than to a specific client.
+  </Step>
+  <Step title="Fill in address details">
+    Enter country, postal code, city, and street address.
+  </Step>
+  <Step title="Save the collaborator">
+    Click **Guardar**. TMT calls the `create_collaborator` Firebase Cloud Function and creates the account with `status: false` (inactive) until the collaborator confirms their email. A confirmation email is automatically sent to the collaborator's email address with a link to activate their account.
+  </Step>
+</Steps>
+
+<Note>
+  New collaborator accounts are created with an **inactive** status. The account activates only after the collaborator clicks the confirmation link in the welcome email. The link expires after 24 hours.
+</Note>
+
+## Staff vs client collaborators
+
+<Tabs>
+  <Tab title="TMT collaborators">
+    Collaborators assigned to **TradeMaster Transactions** (`client_id: "TMT"`) work across all events and clients on the platform. They are managed directly by TMT staff and appear in the full collaborators list at `/usuarios-collaborators`.
+  </Tab>
+  <Tab title="Client collaborators">
+    Collaborators assigned to a specific client work only within that client's events. Access `/cliente-collaborators?id={client_id}` to view and manage collaborators for a particular client. These collaborators are also visible in the full list.
+  </Tab>
+</Tabs>
+
+## Assigning collaborators to events
+
+View the events a collaborator is assigned to via `/eventos-colaborador?id={collaborator_id}`. Event assignments are managed from the event detail view, not from the collaborator profile.
+
+## Collaborator types
+
+The available collaborator types are configured in the platform setup under `collaborator_types`. Each type defines a role name that appears in the collaborator's profile banner and in the operational data section of the creation form. Contact a TMT administrator to add or modify collaborator types.

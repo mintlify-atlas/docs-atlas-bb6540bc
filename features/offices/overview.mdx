@@ -1,0 +1,128 @@
+---
+title: Offices (Taquillas)
+description: Manage physical and virtual ticket offices, assign collaborators, configure payment methods, and handle offline ticket sales.
+---
+
+Taquillas are physical or virtual ticket offices that TMT operators use to sell tickets directly to customers. Each office belongs to a client or producer, has its own staff, payment methods, and operating schedule, and can be linked to one or more events.
+
+## Routes
+
+| Route | Description |
+|---|---|
+| `/lista-taquillas` | All offices list |
+| `/crear-taquilla` | Create a new office |
+| `/editar-taquilla` | Edit an existing office |
+| `/detalles-taquilla` | Office detail and info |
+| `/lista-eventos-taquilla` | Events assigned to an office |
+| `/transacciones-taquilla` | Transactions logged at an office |
+| `/ajustes-taquilla` | Office settings |
+| `/colaboradores-taquilla` | Collaborators assigned to an office |
+| `/lista-ventas-taquilla` | Sales summary per office |
+| `/lista-tickets-offline` | Offline tickets issued at an office |
+
+## Office types
+
+TMT supports three office types:
+
+- **Física** — A brick-and-mortar ticket window at a venue or retail location.
+- **App** — A mobile-first office used by field agents.
+- **Virtual** — An online office linked to a branded client portal. Schedules are not required for virtual offices.
+
+## Creating an office
+
+<Steps>
+  <Step title="Open the create form">
+    Navigate to `/lista-taquillas` and click **Crear Taquilla**. You will be taken to `/crear-taquilla`.
+  </Step>
+  <Step title="Fill in office details">
+    Complete the required fields:
+    - **Nombre** — Display name for the office.
+    - **Tipo de taquilla** — Select Física, App, or Virtual.
+    - **País** and **Ciudad** — Office location.
+    - **Código Postal** — Postal code for the address.
+    - **Dirección detallada** — Full street address.
+    - **Cliente / Productor** — The client account that owns this office.
+  </Step>
+  <Step title="Select payment methods">
+    After choosing a client, the **Métodos de Pago** field populates with payment methods configured for that client. Select all methods this office will accept. Payment methods are filtered by client, so you must select a client first.
+  </Step>
+  <Step title="Assign collaborators">
+    Select the staff who will operate this office:
+    - **Taquilleros** — Ticket sellers (collaborators with the Taquillero role).
+    - **Administradores** — Office managers and supervisors (Administrador or Jefe de Taquilla role).
+
+    At least one collaborator and one administrator are required. The first selected collaborator becomes the default contact, and the first administrator becomes the default manager.
+  </Step>
+  <Step title="Set operating hours (non-virtual offices)">
+    For Física and App offices, configure the weekly schedule. Check each day the office is open and set its opening and closing times. Leave a day unchecked to mark it as closed.
+  </Step>
+  <Step title="Save">
+    Click **Guardar**. On success, you are redirected to `/lista-taquillas`.
+  </Step>
+</Steps>
+
+## Office detail
+
+Navigating to `/detalles-taquilla?id={officeId}` shows the full office profile, organized into sections:
+
+- **Información Básica** — Name, office type, and linked client.
+- **Ubicación** — Country, city, and detailed street address.
+- **Contacto** — Name, phone, and email of the primary contact (first taquillero).
+- **Encargado** — Name, phone, and email of the office manager.
+- **Estado** — Active or inactive badge.
+- **Horarios** — Weekly schedule shown as day-by-day time slots (hidden for Virtual offices).
+
+A tab bar at the top of the detail view lets you switch between the office sub-sections listed below.
+
+## Office sub-sections
+
+<CardGroup cols={2}>
+  <Card title="Dashboard" icon="chart-bar" href="/features/offices/overview">
+    Active office KPIs and real-time performance data for the current office.
+  </Card>
+  <Card title="Events" icon="calendar" href="/features/offices/overview">
+    Add or remove events from the office. Tickets sold through this office are tracked per event.
+  </Card>
+  <Card title="Transactions" icon="receipt" href="/features/offices/overview">
+    Full transaction history for all sales processed at this office.
+  </Card>
+  <Card title="Collaborators" icon="users" href="/features/offices/overview">
+    View and manage the collaborators assigned to this office.
+  </Card>
+  <Card title="Settings" icon="gear" href="/features/offices/overview">
+    Edit office details and manage the office PIN for point-of-sale access.
+  </Card>
+  <Card title="Offline tickets" icon="ticket" href="/features/offices/overview">
+    View and manage offline tickets issued when connectivity was unavailable.
+  </Card>
+</CardGroup>
+
+## Managing events at an office
+
+The **Events** tab (`/lista-eventos-taquilla`) shows two lists side by side:
+
+- **Available events** — All active events in the platform that can be added to this office.
+- **Current office events** — Events already assigned to this office.
+
+Select one or more events from the available list and click **Add** to link them. Removing an event unlinks it and clears its ticket and transaction counters on the office. Each event tracks its own `counter_tickets` and `counter_transactions` at the office level.
+
+## Office settings
+
+The **Settings** tab (`/ajustes-taquilla`) has two sub-tabs:
+
+- **Detalles** — Edit the office name, type, address, and other core fields.
+- **Seguridad** — Set or change the office PIN. The PIN is used by the `office_pin_set` cloud function and is required for point-of-sale authentication at the taquilla.
+
+## Sales summary
+
+Navigate to `/lista-ventas-taquilla` for a cross-office sales view. This page shows aggregated sales data across all offices, allowing you to compare performance between locations.
+
+## Offline ticket support
+
+<Note>
+Offline tickets are designed for physical offices operating in environments with limited or no internet connectivity. Tickets issued offline are reconciled with the platform once connectivity is restored.
+</Note>
+
+The **Offline Tickets** tab (`/lista-tickets-offline`) lists all tickets issued by this office while operating in offline mode. The underlying Firebase cloud functions `offline_office_tickets`, `offline_office_tickets_list_sales`, and `offline_office_tickets_unassign` handle offline ticket issuance, listing, and reconciliation respectively.
+
+Offline tickets can be unassigned from an office when a reconciliation discrepancy is found. Always review offline ticket records after restoring connectivity to ensure sales data is accurate.

@@ -1,0 +1,87 @@
+---
+title: Authentication
+description: How to log in, reset your password, and understand session management in TMT.
+---
+
+TMT uses **Firebase Authentication** as its identity provider, backed by **Firestore** for user profile and permission data. All authentication routes live under the `/auth` path prefix and are handled by a `GuestGuard` that prevents authenticated users from seeing login screens.
+
+## Logging in
+
+<Steps>
+  <Step title="Navigate to the login page">
+    Open `/auth/login` in your browser. If you are already authenticated, the `GuestGuard` will redirect you directly to the dashboard at `/dashboards/modern`.
+  </Step>
+
+  <Step title="Enter your credentials">
+    Type your **email address** and **password** into the respective fields. The form validates that:
+
+    - The email address is a valid format
+    - The password is at least 6 characters
+
+    Toggle the eye icon to reveal or hide your password as you type.
+  </Step>
+
+  <Step title="Platform authorization check">
+    When you submit the form, TMT calls the `validate_user_platform` Firebase Cloud Function before attempting sign-in. This function confirms that your account exists in the `u_staff` collection with `platform: 'u_staff'`.
+
+    If your account is not found or is not a recognized staff member, you will see an **"Usuario no autorizado"** error and login will be blocked — even if your password is correct.
+  </Step>
+
+  <Step title="Firebase sign-in">
+    Once platform authorization passes, TMT calls `firebase.auth().signInWithEmailAndPassword()` with your credentials. On success, the `onAuthStateChanged` listener fires and loads your user profile from the `u_staff` Firestore collection.
+
+    Your last access timestamp and IP address are recorded automatically at this point.
+  </Step>
+
+  <Step title="Redirect to the dashboard">
+    After a successful sign-in you are redirected to `/dashboards/modern`. The sidebar and available features reflect your assigned role and CASL-computed permissions.
+  </Step>
+</Steps>
+
+<Warning>
+  TMT is a staff-only administration platform. Customer-facing accounts cannot log in here. If you receive an "Usuario no autorizado" error, contact your administrator to verify your account is registered in the staff collection and has an active status.
+</Warning>
+
+## Resetting your password
+
+If you cannot remember your password, navigate to `/auth/forgot-password`.
+
+1. Enter the **email address** associated with your account.
+2. Click the reset button. TMT calls `firebase.auth().sendPasswordResetEmail()` with your address.
+3. Check your inbox for a password reset email from Firebase. Follow the link in the email to set a new password.
+4. Return to `/auth/login` and sign in with your new credentials.
+
+<Warning>
+  The reset link expires after a short period. If the link has expired, repeat the forgot-password flow to request a new one.
+</Warning>
+
+## Registration
+
+The registration page is available at `/auth/register`. In practice, staff accounts are created by administrators using the internal **New Staff** form (`/usuarios-staff-crear`) rather than self-registration. The `/auth/register` route exists for scenarios where account self-creation is explicitly enabled by the platform configuration.
+
+If you need a new staff account, ask a user with the **Administrador** or **Coordinador** role to create one for you.
+
+## Session management
+
+TMT relies on Firebase's built-in session persistence. Once you sign in, Firebase stores an authentication token in the browser. The `AuthGuard` component checks the `isAuthenticated` flag derived from Firebase's `onAuthStateChanged` listener on every route change.
+
+- If the session is valid, you proceed normally.
+- If the session has expired or been revoked, `AuthGuard` redirects you to `/auth/login`.
+
+Your session remains active until you explicitly log out or an administrator deactivates your account. Account status is checked on every login — if your `status` field in Firestore is not `true`, you are signed out immediately.
+
+<Note>
+  There is no manual "remember me" toggle that changes persistence behavior. The **Recuérdame** checkbox is shown in the UI; Firebase session persistence is managed at the platform level.
+</Note>
+
+## Permission validation
+
+After login, every protected route is wrapped in a `PermissionGuard`. If you navigate to a route for which your role does not have the required permission, you are redirected to `/auth/permissions`.
+
+This page displays a message indicating insufficient access and provides a button to return to the dashboard at `/dashboards/modern`. No sensitive data is exposed on this page.
+
+See [Roles and permissions](/concepts/roles-permissions) for a full list of permission subjects and how they map to roles.
+
+## Auth0 integration
+
+The codebase includes commented-out imports for an Auth0 context (`Auth0Context`) alongside the active Firebase context. Auth0 is not the active provider in the current deployment — Firebase Authentication handles all sign-in, session, and password-reset operations. The `UseAuth` hook resolves to `FirebaseContext`, which provides the `signin`, `logout`, and `ResetPassword` methods used throughout the application.

@@ -1,0 +1,36 @@
+---
+title: Platform settings
+description: Configure global platform parameters including general settings, daily exchange rates, and fixed and variable cost structures.
+---
+
+Platform settings control the global configuration of your TMT instance. Changes made here affect all users, clients, and financial calculations across the platform.
+
+<Note>
+Accessing platform settings requires the `ViewPlatformSettings` permission. Users without this permission are redirected to `/auth/permissions`. In the default role configuration, **Administrador**, **Coordinador**, and **Contador** roles have this permission. **Soporte** and **Creador de Sala de Eventos** do not.
+</Note>
+
+## Accessing platform settings
+
+Navigate to `/platform-settings` from the sidebar. The page renders four configuration tabs.
+
+## Configuration tabs
+
+### General
+
+The **General** tab (`GeneralSettingsTab`) contains core platform configuration options such as the platform name, default currencies, and other organization-wide settings.
+
+### Daily exchange rate (Tasa del Día)
+
+The **Tasa del Día** tab (`ExchangeRateTab`) lets you set the current exchange rate used by the platform for currency conversions. Update this rate daily or as frequently as your business requires to ensure accurate financial reporting.
+
+### Fixed costs (Gastos Fijos)
+
+The **Gastos Fijos** tab (`CostsFixedTab`) defines fixed cost items that are applied uniformly to event calculations regardless of ticket volume. Use this section to configure overhead charges, flat service fees, or any recurring cost that does not vary per transaction.
+
+### Variable costs (Gastos Variables)
+
+The **Gastos Variables** tab (`CostsVariablesTab`) defines percentage-based or unit-based cost items that scale with ticket sales or transaction amounts. Configure commissions, payment processing fees, or other variable charges here.
+
+## Saving changes
+
+Each tab manages its own save action. Make your changes within a tab and click **Guardar** (or the equivalent save control) before switching to another tab. Unsaved changes in one tab are not preserved when you navigate away.

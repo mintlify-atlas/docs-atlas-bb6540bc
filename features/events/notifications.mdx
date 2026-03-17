@@ -1,0 +1,91 @@
+---
+title: Notifications
+description: Send push notifications to ticket holders for a specific event using the TMT notification system.
+---
+
+The notifications feature lets staff send push notifications to all ticket holders for a given event. Notifications are stored in Firestore and delivered in real time using the `send_notifications` Firebase Cloud Function.
+
+## Routes
+
+| Route | Description |
+|-------|-------------|
+| `/eventos-notificaciones?id={eventId}` | List all notifications sent for an event |
+| `/eventos-notificaciones-crear?id={eventId}` | Compose and send a new notification |
+
+<Note>
+Both routes require an `id` query parameter identifying the event. Navigating without it results in an empty page.
+</Note>
+
+## Viewing sent notifications
+
+Go to `/eventos-notificaciones?id={eventId}` to see the notification history for an event. The page shows the event `ProfileBanner` followed by the `NotificationsTableList`, which lists each notification's title, body, send date, and sender name.
+
+Notifications are stored in the `events/{eventId}/notifications` Firestore subcollection.
+
+## Sending a notification
+
+<Steps>
+  <Step title="Open the notification form">
+    From the notification list, click **Nueva Notificación** to navigate to `/eventos-notificaciones-crear?id={eventId}`.
+
+    The breadcrumb shows the event name as a link back to the event detail page, so you always have context about which event you are targeting.
+  </Step>
+
+  <Step title="Attach an image (optional)">
+    On the left side of the form, you can upload an image to accompany the notification.
+
+    - Accepted formats: JPG, PNG, and other common image types
+    - Maximum file size: 800 KB
+
+    Click **Cargar** to select a file. The image is uploaded to Firebase Storage at `events/{eventId}/notifications/{notificationId}/image.jpg` and its URL is added to the notification record after saving.
+
+    Click **Reiniciar** to remove the selected image.
+  </Step>
+
+  <Step title="Write the notification content">
+    On the right side of the form, fill in the **Información a Desplegar** section:
+
+    | Field | Required | Description |
+    |-------|----------|-------------|
+    | **Título** | Yes | Short headline shown on the notification (e.g., "Recordatorio: el evento empieza en 1 hora") |
+    | **Cuerpo** | Yes | Full message body displayed when the notification is tapped |
+
+    The notification is attributed automatically to the currently logged-in user. The sender's UID and name are captured from Redux state and saved to the notification record.
+  </Step>
+
+  <Step title="Send the notification">
+    Click **Guardar** to send the notification. The platform:
+
+    1. Creates a notification document in `events/{eventId}/notifications`.
+    2. Uploads the image to Firebase Storage (if provided) and updates the document with its URL.
+    3. Calls the `send_notifications` Cloud Function with the title, body, event ID, and image URL.
+
+    On success, you are redirected back to the notification list.
+
+    <Warning>
+    Notifications are delivered immediately to all ticket holders who have enabled push notifications on their device. There is no scheduling or draft functionality — submitting the form sends the notification at once.
+    </Warning>
+  </Step>
+</Steps>
+
+## Notification data structure
+
+Each notification document in `events/{eventId}/notifications` contains:
+
+```json
+{
+  "title": "Recordatorio de evento",
+  "body": "Las puertas abren en 30 minutos.",
+  "status": true,
+  "sender_id": "uid_of_sender",
+  "sender_name": "María López",
+  "image": "https://storage.googleapis.com/.../image.jpg",
+  "date": {
+    "created": "<server timestamp>"
+  }
+}
+```
+
+<Tip>
+Keep notification titles concise — mobile devices typically truncate titles longer than 50 characters. Place essential information in the title and supporting details in the body.
+</Tip>

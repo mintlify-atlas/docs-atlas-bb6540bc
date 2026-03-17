@@ -1,0 +1,88 @@
+---
+title: Staff
+description: Create and manage internal TMT administrative users with role-based access control.
+---
+
+Staff users are internal TMT employees and administrators who operate the platform. Each staff account is assigned an account type (hierarchy level) that determines which parts of the platform they can access. Access control is enforced throughout the application using CASL permissions tied to the account type.
+
+## Routes
+
+| Route | Description |
+|---|---|
+| `/usuarios-staff` | Staff user list |
+| `/usuarios-detalle-staff` | Staff user detail |
+| `/usuarios-staff-crear` | Create a new staff user |
+| `/usuarios-staff-editar` | Edit an existing staff user |
+
+## Staff list
+
+The list page at `/usuarios-staff` shows all staff accounts in a searchable, paginated table.
+
+### Columns
+
+| Column | Description |
+|---|---|
+| Nombre | Staff member's name, avatar, and account type |
+| Último Acceso | Date and time of the most recent login |
+| Estatus | **Activo** (green) or **Inactivo** (red) chip |
+| Correo Electrónico | Email address |
+| Acciones | Eye icon to open the staff detail view |
+
+Type in the search bar to filter by name, email, status, or last access date. Use the download icon to export the list as a CSV file.
+
+<Note>
+  Only users with the `create usersStaff` permission see the **Crear Usuario** button. If you do not see this button, your account type does not include staff creation privileges.
+</Note>
+
+## Staff detail view
+
+Navigate to `/usuarios-detalle-staff?type=staff&id={user_id}` to open a staff member's profile. The page has three sections:
+
+- **Profile banner** — displays the staff member's photo, name, and account type.
+- **Introduction card** — shows full name, email address, phone number, and full address (street, city, and country).
+- **Security card** — displays account security information and status.
+
+## Creating a staff user
+
+<Steps>
+  <Step title="Open the creation form">
+    From the staff list, click **Crear Usuario** (visible only with `create usersStaff` permission). This opens `/usuarios-staff-crear`.
+  </Step>
+  <Step title="Upload a profile photo (optional)">
+    Click **Cargar** to select a JPG, GIF, or PNG image. Maximum file size is 800 KB. Click **Reiniciar** to remove a selected image.
+  </Step>
+  <Step title="Select the account type">
+    Choose the staff hierarchy level from the **Perfil del Usuario** dropdown. Available types are loaded from the platform setup configuration (`staff_hierarchy`).
+  </Step>
+  <Step title="Set a password">
+    Enter and confirm a password. The password must be at least 6 characters. Use the eye icon to toggle password visibility.
+  </Step>
+  <Step title="Fill in personal details">
+    Complete the following required fields:
+
+    - **Nombre** — full name
+    - **Correo Electrónico** — email address (must be unique in the system)
+    - **Tipo de Identificación** — document type (e.g. V, E, P)
+    - **Número de Identificación** — numeric ID number
+    - **Teléfono** — international phone number (defaults to Venezuelan format)
+  </Step>
+  <Step title="Fill in address details">
+    Complete the address section:
+
+    - **País** — country (selected from the configured locations list)
+    - **Código Postal** — postal code
+    - **Ciudad** — city
+    - **Dirección** — street address
+  </Step>
+  <Step title="Save the user">
+    Click **Guardar**. TMT calls the `create_staff` Firebase Cloud Function to create the Auth0 account and Firestore document. If a profile photo was uploaded, it is stored in Firebase Storage at `u_staff/{uid}/profile_picture.jpg` and the URL is saved to the user record. You are redirected to `/usuarios-staff` on success.
+  </Step>
+</Steps>
+
+## Editing a staff user
+
+Navigate to `/usuarios-staff-editar?id={user_id}` to edit an existing staff member. The form pre-populates with the current user data fetched from the `u_staff` Firestore collection. Update any field and click **Guardar** to save changes.
+
+## Deactivating a staff user
+
+To deactivate a staff account, edit the user and set the **Estatus** field to inactive. Inactive accounts cannot log in but their data is preserved in Firestore. The status is reflected immediately in the staff list as an **Inactivo** chip.

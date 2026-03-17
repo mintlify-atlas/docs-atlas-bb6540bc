@@ -1,0 +1,92 @@
+---
+title: Marketing campaigns
+description: Create and track marketing service requests for social media promotion, content creation, and advertising tied to events.
+---
+
+The marketing module (Campañas) lets clients submit requests for digital marketing services — such as social media management, content creation, and paid advertising — and track the approval status of each campaign request.
+
+## Routes
+
+| Route | Description |
+|---|---|
+| `/campanas` | Marketing campaigns list |
+| `/campanas-crear` | Create a new campaign |
+
+<Note>
+The campaign list and create form share the same parent component (`MarketingList`). Navigating to `/campanas-crear` renders the creation form inline on the same page, while `/campanas` shows the table of existing campaigns.
+</Note>
+
+## What a campaign contains
+
+Each marketing campaign request captures:
+
+- **Servicio** — The type of marketing service requested.
+- **Red Social** — The social network where the campaign will run.
+- **URL** — A link to the relevant social media profile or content page.
+- **Ubicaciones** — One or more geographic targets, each with a country and a list of cities.
+- **Público Objetivo** — The intended audience, defined by minimum age, maximum age, and gender.
+- **Status** — The review state of the request (see [Campaign statuses](#campaign-statuses)).
+
+## Available services
+
+When creating a campaign, select one of the following service types:
+
+- Gestión de Redes Sociales
+- Creación de Contenido
+- Publicidad
+- Community Management
+- Marketing de Influencers
+
+## Supported social networks
+
+Campaigns can target any of these platforms:
+
+- Facebook
+- Instagram
+- Twitter
+- LinkedIn
+- TikTok
+- YouTube
+
+## Creating a campaign
+
+<Steps>
+  <Step title="Navigate to the create form">
+    Go to `/campanas` and click **Crear Marketing**, or navigate directly to `/campanas-crear`.
+  </Step>
+  <Step title="Select a service and social network">
+    Choose the **Servicio** from the dropdown, then select the **Red Social** where the campaign will be delivered.
+  </Step>
+  <Step title="Enter the URL">
+    Provide the **URL** of the social media page, profile, or content asset that the campaign should promote.
+  </Step>
+  <Step title="Define target locations">
+    Add at least one geographic target:
+    1. Select a **País** from the autocomplete list.
+    2. Select one or more **Ciudades** from that country's states/regions.
+    3. Click the **+** button to add additional country-city combinations.
+    4. Click the delete icon next to a row to remove it.
+  </Step>
+  <Step title="Set the target audience">
+    Fill in the **Público Objetivo** section:
+    - **Edad Mínima** — Minimum age (0–100).
+    - **Edad Máxima** — Maximum age, must be greater than minimum age.
+    - **Género** — Select Masculino, Femenino, or Ambos.
+  </Step>
+  <Step title="Save">
+    Click **Guardar**. The campaign is saved to Firestore under the `marketing` collection with a status of **Pendiente**. The campaign is automatically attributed to the logged-in user's client account.
+  </Step>
+</Steps>
+
+## Campaign statuses
+
+After a campaign is submitted, its status is reviewed and updated by TMT staff:
+
+| Status | Meaning |
+|---|---|
+| **Pendiente** | Submitted and awaiting review. Set automatically on creation. |
+| **Generado** | Campaign has been set up and is ready to launch. |
+| **Aprobado** | Campaign has been approved and is active. |
+| **Rechazado** | Campaign request was declined. |
+
+You can monitor the current status of all your campaigns from the `/campanas` list view.

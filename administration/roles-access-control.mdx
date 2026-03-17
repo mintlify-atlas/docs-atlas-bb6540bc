@@ -1,0 +1,158 @@
+---
+title: Roles and access control
+description: Understand how TMT's CASL-based permission system works and what each role can access.
+---
+
+TMT uses [CASL](https://casl.js.org/) (`@casl/ability` and `@casl/react`) to enforce role-based access control throughout the application. Every protected route and action is guarded by a permission check at render time.
+
+## How permissions work
+
+When a user logs in, their `account_type` field is read from their Firestore profile. The `defineAbilitiesFor` function in `src/guards/contexts/DefineAbilities.js` builds a CASL `Ability` object based on that account type. This ability instance is provided to the entire React tree via the `AbilityContext`.
+
+Each protected route is wrapped in a `PermissionGuard` component:
+
+```jsx
+<PermissionGuard action="view" subject="ViewContracts">
+  <ContractsTable />
+</PermissionGuard>
+```
+
+If the current user's ability does not satisfy `can(action, subject)`, they are redirected to `/auth/permissions`, which displays an access-denied page.
+
+## Built-in roles
+
+TMT ships with five predefined roles:
+
+| Role | Description |
+|---|---|
+| **Administrador** | Full access to all features and settings. Uses CASL's `can('manage', 'all')` — no restrictions. |
+| **Coordinador** | Manages events, contracts, offices, clients, and collaborators. Cannot manage payouts or view campaigns. |
+| **Contador** | Read-only access to contracts, events, and financial data. Cannot create events, contracts, or manage users. |
+| **Soporte** | Can view clients, collaborators, events, and tickets. Cannot create or modify most data, access payouts, or view campaigns. |
+| **Creador de Sala de Eventos** | Can create and manage event venues only. Cannot access most other features. |
+
+<Note>
+The **Administrador** role bypasses all permission checks. Assign this role only to users who need unrestricted platform access.
+</Note>
+
+## Permission subjects
+
+The table below lists every permission subject in the system. The `action` for all route guards is `"view"`.
+
+### User management
+
+| Subject | Description |
+|---|---|
+| `ViewStaff` | View staff user list |
+| `ViewStaffDetail` | View staff user detail |
+| `ViewStaffCreate` | Access the create staff form |
+| `ViewStaffEdit` | Access the edit staff form |
+| `ViewClients` | View client list |
+| `ViewClientsDetail` | View client detail |
+| `ViewClientsCreate` | Access the create client form |
+| `ViewClientsEdit` | Access the edit client form |
+| `ViewCollaborators` | View collaborator list |
+| `ViewCollaboratorsDetail` | View collaborator detail |
+| `ViewCollaboratorsCreate` | Access the create collaborator form |
+| `ViewCollaboratorsEdit` | Access the edit collaborator form |
+| `ViewCollaboratorsEvents` | View events assigned to a collaborator |
+| `ViewClientCollaborators` | View collaborators linked to a client |
+| `ViewCustomers` | View customer (end-user) list |
+| `ViewCustomersDetail` | View customer detail |
+| `ViewCustomerOrders` | View customer order history |
+| `ViewCustomerTickets` | View tickets owned by a customer |
+
+### Events and venues
+
+| Subject | Description |
+|---|---|
+| `ViewEvents` | View events list |
+| `ViewClientEvents` | View events scoped to a client |
+| `ViewEventsCreate` | Access the create event form |
+| `ViewEventsEdit` | Access the edit event form |
+| `ViewEventsDetail` | View event detail |
+| `ViewEventsConfig` | Access event configuration |
+| `ViewEventsConfigZone` | Configure seating zones for an event |
+| `ViewEventsConfigSplit` | Configure revenue splits for an event |
+| `ViewEventsCredentials` | View event credentials list |
+| `ViewEventsCredentialsCreate` | Create new event credentials |
+| `ViewEventsCredentialsCreateDetail` | View credential detail |
+| `ViewEventsNotifications` | View event notifications |
+| `ViewEventsNotificationsCreate` | Create event notifications |
+| `ViewEventVenue` | View venue list |
+| `ViewEventVenueCreate` | Create a new venue |
+| `ViewEventVenueEdit` | Edit a venue |
+| `ViewEventVenueDetail` | View venue detail |
+| `ViewEventVenueEvents` | View events at a venue |
+
+### Tickets
+
+| Subject | Description |
+|---|---|
+| `ViewTickets` | View ticket list |
+| `ViewTicketsDetail` | View ticket detail |
+| `TicketSearchView` | Search for tickets |
+| `QueryTicketDisplay` | Display query ticket results |
+
+### Contracts
+
+| Subject | Description |
+|---|---|
+| `ViewContracts` | View contracts list |
+| `ViewContractsCreate` | Create a new contract |
+| `ViewContractsDetail` | View contract detail |
+| `ViewAddendum` | View addendum list |
+| `ViewAddendumDetail` | View addendum detail |
+
+### Offices (Taquillas)
+
+| Subject | Description |
+|---|---|
+| `ViewOfficeList` | View office list |
+| `ViewOfficeDetails` | View office detail |
+| `ViewCreateOffice` | Create a new office |
+| `ViewEditOffice` | Edit an office |
+| `ViewOfficeEventList` | View events at an office |
+| `ViewOfficeTransactionList` | View transactions at an office |
+| `ViewOfficesSalesList` | View the cross-office sales summary |
+
+### Financial
+
+| Subject | Description |
+|---|---|
+| `ViewPayouts` | View payout list |
+| `ViewPayout` | View a single payout detail |
+| `CreatePayouts` | Create a payout |
+| `EditPayouts` | Edit a payout |
+| `ViewClientPayouts` | View payouts for a specific client |
+| `CreateClientPayouts` | Create a client payout |
+
+### Platform
+
+| Subject | Description |
+|---|---|
+| `ViewPlatformSettings` | Access platform settings |
+
+## Configuring permissions
+
+<Note>
+Permissions are defined in code in `src/guards/contexts/DefineAbilities.js`. To modify what a role can or cannot do, update the `commonPermissions` object for that role and redeploy the application. There is no UI for editing role permissions.
+</Note>
+
+The `defineAbilitiesFor` function accepts a user object and returns a CASL `Ability` instance. Administrators receive `can('manage', 'all')`, while other roles receive explicit `can` and `cannot` rule sets:
+
+```javascript
+// Example: adding a permission to the Coordinador role
+// In src/guards/contexts/DefineAbilities.js
+'Coordinador': {
+  can: [
+    // existing permissions...
+    ['view', 'ViewNewFeature'], // add here
+  ],
+  cannot: [
+    // existing restrictions...
+  ]
+}
+```
+
+After updating abilities, users will need to log out and back in for the new ability instance to be initialized.

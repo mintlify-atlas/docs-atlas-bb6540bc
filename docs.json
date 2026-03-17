@@ -1,122 +1,118 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "TradeMaster Transactions (TMT)",
+  "theme": "linden",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#1a6fc4",
+    "light": "#e8f1fb",
+    "dark": "#0d3d70"
   },
-  "favicon": "/favicon.svg",
+  "navbar": {
+    "primary": {
+      "type": "github",
+      "href": "https://github.com/Zeto96/tmt-doc-7"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/Zeto96/tmt-doc-7"
+    }
+  },
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Overview",
         "groups": [
           {
-            "group": "Getting started",
-            "pages": [
-              "index",
-              "quickstart",
-              "development"
-            ]
+            "group": "Get Started",
+            "pages": ["introduction", "getting-started/quickstart", "getting-started/authentication"]
           },
           {
-            "group": "Customization",
+            "group": "Core Concepts",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
-            ]
-          },
-          {
-            "group": "Writing content",
-            "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
-            ]
-          },
-          {
-            "group": "AI tools",
-            "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+              "concepts/roles-permissions",
+              "concepts/events-lifecycle",
+              "concepts/tickets-orders"
             ]
           }
         ]
       },
       {
-        "tab": "API reference",
+        "tab": "Features",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "Dashboard",
+            "pages": ["features/dashboard"]
+          },
+          {
+            "group": "Events & Venues",
             "pages": [
-              "api-reference/introduction"
+              "features/events/overview",
+              "features/events/creating-events",
+              "features/events/setup-zones",
+              "features/events/credentials",
+              "features/events/notifications",
+              "features/venues/overview"
             ]
           },
           {
-            "group": "Endpoint examples",
+            "group": "Tickets & Orders",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "features/tickets/overview",
+              "features/orders/overview",
+              "features/orders/payout-orders"
+            ]
+          },
+          {
+            "group": "Users",
+            "pages": [
+              "features/users/staff",
+              "features/users/clients",
+              "features/users/collaborators",
+              "features/users/customers"
+            ]
+          },
+          {
+            "group": "Financial",
+            "pages": [
+              "features/transactions/overview",
+              "features/payouts/overview",
+              "features/payment-methods",
+              "features/custody-accounts",
+              "features/conciliations"
+            ]
+          },
+          {
+            "group": "Operations",
+            "pages": [
+              "features/offices/overview",
+              "features/contracts/overview",
+              "features/portals/overview",
+              "features/marketing/overview",
+              "features/documents"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Administration",
+        "groups": [
+          {
+            "group": "Configuration",
+            "pages": [
+              "administration/platform-settings",
+              "administration/account-settings"
+            ]
+          },
+          {
+            "group": "Security",
+            "pages": [
+              "administration/roles-access-control",
+              "administration/auth-providers"
             ]
           }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
-  },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
-  },
-  "contextual": {
-    "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
-  },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
-    }
+    ]
   }
 }

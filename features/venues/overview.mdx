@@ -1,0 +1,153 @@
+---
+title: Venues overview
+description: Create and manage event venues (Salones de Eventos) in TMT, including address, capacity, seat maps, and associated events.
+---
+
+Venues (Salones de Eventos) are the physical spaces where events are held. Each venue stores its location, capacity, and optionally an interactive Seats.io seat map. Events reference venues at creation time to inherit capacity limits and map configuration.
+
+## Routes
+
+| Route | Description |
+|-------|-------------|
+| `/salones-eventos` | List all venues |
+| `/salones-eventos-crear` | Create a new venue |
+| `/salones-eventos-editar?id={id}` | Edit an existing venue |
+| `/salones-eventos-detalle?id={id}` | View venue details |
+| `/salones-eventos-eventos?id={id}` | View events held at a venue |
+
+## Venue features
+
+<CardGroup cols={2}>
+  <Card title="Address and location" icon="map-pin">
+    Each venue stores a full address with country, city, postal code, and street line. Addresses are resolved via Google Places Autocomplete.
+  </Card>
+  <Card title="Capacity management" icon="users">
+    Maximum capacity is set manually or calculated automatically from a Seats.io seat map when one is configured.
+  </Card>
+  <Card title="Seat map integration" icon="grid-2">
+    Venues can have an interactive Seats.io seat map. Create a new map from scratch or copy an existing template.
+  </Card>
+  <Card title="Event history" icon="calendar-days">
+    View all events that have been or are being held at a venue from the venue's events tab.
+  </Card>
+</CardGroup>
+
+## Creating a venue
+
+<Steps>
+  <Step title="Open the creation form">
+    Navigate to `/salones-eventos-crear` or click **Crear Sala de Evento** from the venues list.
+  </Step>
+
+  <Step title="Upload a venue image">
+    Click **Cargar** to upload a photo of the venue.
+
+    - Accepted formats: JPG, GIF, PNG
+    - Maximum file size: 2 MB
+    - Recommended dimensions: 2500 × 900 pixels
+
+    The image is uploaded to Firebase Storage at `event_venues/{id}/venue_picture.jpg`.
+  </Step>
+
+  <Step title="Fill in venue details">
+    In the **Datos del Salon de Eventos** section, provide:
+
+    | Field | Required | Notes |
+    |-------|----------|-------|
+    | **Nombre** | Yes | Display name for the venue |
+    | **Capacidad Maxima** | Conditional | Required when not using a seat map; auto-calculated from the map when one is configured |
+    | **Tipo de Sala de Evento** | Yes | Venue type from platform configuration |
+    | **Descripción** | Yes | Description of the venue |
+  </Step>
+
+  <Step title="Enter the address">
+    In the **Dirección** section, use the **Dirección Completa** Google Places Autocomplete field to search for and select the venue address. Selecting a result automatically fills in:
+
+    - **País** — Country (matched to the platform's location list)
+    - **Ciudad** — City
+    - **Código Postal** — Postal code
+
+    You can also fill in these fields manually after auto-completion.
+
+    <Note>
+    The Google Places integration uses the `@react-google-maps/api` library and requires a valid Google Maps API key configured in the environment.
+    </Note>
+  </Step>
+
+  <Step title="Configure a seat map (optional)">
+    In the **Mapa de Asientos** section, choose whether to configure an interactive seat map:
+
+    <Tabs>
+      <Tab title="No seat map">
+        Select **No, sin mapa de asientos**. The **Capacidad Maxima** field is required and determines the maximum ticket allocation for all events at this venue.
+      </Tab>
+      <Tab title="Create a new map">
+        Select **Sí, configurar mapa de asientos**, then choose **Crear un mapa nuevo desde cero**. The Seats.io designer opens in an embedded panel where you draw the venue layout.
+
+        When finished, click the save action in the designer. The chart key is stored with the venue. Capacity is calculated automatically from the seat and general-admission objects in the map at save time.
+      </Tab>
+      <Tab title="Copy an existing template">
+        Select **Sí, configurar mapa de asientos**, then choose **Copiar mapa de un salón existente**. The platform loads all Seats.io charts tagged with **PLANTILLA** and displays them as selectable cards.
+
+        Click a template card to copy it. The platform:
+        1. Calls `copy_chart_seatsio` to duplicate the chart.
+        2. Removes all existing tags from the copy.
+        3. Opens the copied chart in the Seats.io designer for customization.
+
+        After editing, add comma-separated tags in the **Tags del Mapa** field to organize the new map.
+      </Tab>
+    </Tabs>
+
+    <Tip>
+    To make a venue map available as a template for copying, add the tag `PLANTILLA` to its chart in Seats.io and publish it. It will then appear in the template picker when creating new venues.
+    </Tip>
+  </Step>
+
+  <Step title="Save the venue">
+    Click **Guardar** to create the venue. If a seat map is configured, the platform calculates the final capacity from the chart's seat and general-admission objects before saving.
+
+    The venue document is written to the `event_venues` Firestore collection with the following structure:
+
+    ```json
+    {
+      "name": "Teatro Nacional",
+      "type": "Teatro",
+      "status": true,
+      "max_capacity": 850,
+      "description": "Teatro principal con capacidad para 850 personas.",
+      "address": {
+        "country": { "name": "Venezuela", "code": "ve" },
+        "city": "Caracas",
+        "zip_code": "1010",
+        "line": "Av. Principal, Caracas, Venezuela"
+      },
+      "media": ["https://storage.googleapis.com/.../venue_picture.jpg"],
+      "seatmap": {
+        "chartKey": "abc123",
+        "provider": "seatsio",
+        "createdAt": "2026-01-15T10:00:00.000Z",
+        "tags": ["teatro", "850 asientos"]
+      }
+    }
+    ```
+  </Step>
+</Steps>
+
+## Viewing venue details
+
+Navigate to `/salones-eventos-detalle?id={venueId}` to see the venue detail page. It shows:
+
+- **ProfileBanner** — Venue name, image, type, and capacity.
+- **IntroCard** — Full address, description, and seat map information.
+
+## Viewing events at a venue
+
+Navigate to `/salones-eventos-eventos?id={venueId}` to see all events scheduled at that venue. The page reuses the standard `EventsTable` component filtered to the venue ID.
+
+## Editing a venue
+
+Navigate to `/salones-eventos-editar?id={venueId}` to open the edit form. The `EditEventVenueForm` pre-populates all fields with the current venue data. The form structure mirrors the creation form.
+
+<Warning>
+Changing the seat map configuration on an existing venue does not automatically update events that are already linked to that venue. Coordinate with event organizers before modifying a venue's seat map.
+</Warning>

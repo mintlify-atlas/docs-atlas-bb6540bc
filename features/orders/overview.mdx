@@ -1,0 +1,105 @@
+---
+title: Orders
+description: Track, search, and export sales orders across all events and sales channels in TradeMaster Transactions.
+---
+
+An order in TMT represents a completed purchase transaction. Each order is linked to a specific event, contains one or more tickets, and records every payment transaction used to settle the amount. Orders are created when a customer completes checkout online or at a physical box office.
+
+## Routes
+
+| Route | Description |
+|---|---|
+| `/ordenes` | Full order list |
+| `/ordenes-detalle` | Individual order detail |
+| `/lista-ordenes-customer` | Orders filtered by a specific customer |
+| `/eventos-ordenes` | Orders filtered by a specific event |
+
+## Order lifecycle
+
+Orders move through the following states:
+
+| Status | Meaning |
+|---|---|
+| **Activo** | The order is confirmed and tickets are valid |
+| **Inactivo** | The order has been cancelled or deactivated |
+
+Payment transactions within an order have their own status:
+
+| Transaction status | Meaning |
+|---|---|
+| **Aprobado** | Payment was confirmed |
+| **Por aprobar** | Payment is pending confirmation |
+
+## Order list
+
+The order list at `/ordenes` displays all orders across every event in a paginated table.
+
+### Columns
+
+| Column | Description |
+|---|---|
+| Nombre del Evento | Event name and associated box office name |
+| Estatus | Active or inactive indicator chip |
+| Fecha de Creación | Date the order was created |
+| Monto | Total order amount in USD |
+| Acciones | Eye icon to open order detail |
+
+The global search bar filters across event name, status, amount, and creation date. Use the download icon to export the table as a CSV file.
+
+## Order detail
+
+Navigate to `/ordenes-detalle?id={order_id}` to open a specific order. The detail page is split into a main panel and a status sidebar.
+
+<Tabs>
+  <Tab title="Order information">
+    The main panel shows:
+
+    - **ID Orden** — unique order identifier
+    - **Nombre del Evento** — the event the order belongs to
+    - **Fecha de Creación** — creation timestamp
+    - **Cliente** — client (event organizer) name
+    - **Taquilla** — the box office or channel that processed the sale
+    - **Monto** — total amount in USD
+  </Tab>
+  <Tab title="Tickets">
+    The tickets accordion lists every ticket in the order. Columns include:
+
+    - Ticket ID
+    - Amount (per ticket)
+    - Customer name
+    - Customer email
+    - Customer phone
+
+    Click the accordion header to expand and search within the ticket list.
+  </Tab>
+  <Tab title="Transactions">
+    The transactions accordion shows every payment record attached to the order. Columns include:
+
+    - Payment method name and ID
+    - Status (Aprobado / Por aprobar)
+    - Date
+    - Amount in USD
+    - Amount in VEF (if payment was in bolívares)
+    - Exchange rate (when applicable)
+
+    Click the eye icon on any transaction row to open the transaction detail view.
+  </Tab>
+  <Tab title="Status sidebar">
+    The right-hand sidebar shows the order's current status — **ACTIVO** or **INACTIVO** — and the raw order ID for reference.
+  </Tab>
+</Tabs>
+
+## Exporting order data
+
+From the order detail page you can export the order data in two formats:
+
+- **Descargar PDF** — generates a PDF with the order summary, ticket list, and transaction list.
+- **Descargar Excel** — exports tickets and transactions as separate CSV files named with the order ID and export date.
+
+<Note>
+  The PDF download uses `@react-pdf/renderer` and may take a few seconds to generate for orders with many tickets or transactions.
+</Note>
+
+## Viewing orders by customer or event
+
+Use `/lista-ordenes-customer?id={customer_id}` to view all orders placed by a specific customer. Use `/eventos-ordenes?id={event_id}` to view all orders for a specific event. Both views use the same table layout and export options as the main order list.

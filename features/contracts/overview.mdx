@@ -1,0 +1,123 @@
+---
+title: Contracts
+description: Create and manage commercial contracts and addendums between TMT and clients, and maintain a separate register of legal contracts.
+---
+
+TMT's contracts module lets you formalize agreements between the platform and its clients or venues. Each contract can be supplemented with one or more addendums for amendments, and a separate legal contracts register holds statutory and regulatory documents.
+
+## Routes
+
+| Route | Description |
+|---|---|
+| `/contracts` | Contracts list |
+| `/create-contracts` | Create a new contract |
+| `/contract-details` | Contract detail and PDF |
+| `/create-addendum` | Add an addendum to a contract |
+| `/addendum-details` | Addendum detail and PDF |
+| `/contracts-legal` | Legal contracts list |
+| `/contracts-legal-create` | Create a new legal contract |
+| `/contracts-legal-detail` | Legal contract detail |
+
+## Contract types
+
+<Tabs>
+  <Tab title="Commercial contracts">
+    Commercial contracts record the business agreement between TMT and a client (producer or venue). They contain:
+
+    - **Título del Contrato** — The contract's display name.
+    - **Identificador del Contrato** — A unique reference code for tracking.
+    - **Cliente** — The client this contract belongs to.
+    - **Fecha del Contrato** — The date the contract was signed or effective.
+    - **Descripción** — A summary of the agreement terms.
+    - **Documento PDF** — The signed contract file, uploaded to Firebase Storage.
+
+    Contracts can be extended with addendums without creating a new contract.
+  </Tab>
+  <Tab title="Legal contracts">
+    Legal contracts are a separate register for statutory documents, regulatory filings, or other legal instruments that are not directly tied to a client billing relationship. They follow a similar structure to commercial contracts but are managed independently under `/contracts-legal`.
+  </Tab>
+</Tabs>
+
+## Creating a contract
+
+<Steps>
+  <Step title="Open the create form">
+    Navigate to `/contracts` and click **Crear Contrato** to go to `/create-contracts`.
+  </Step>
+  <Step title="Select the client">
+    Choose the client from the **Cliente** dropdown. The list is populated from active client accounts in the platform.
+  </Step>
+  <Step title="Set the contract date">
+    Use the date picker to set the **Fecha del Contrato**. The date cannot be in the future.
+  </Step>
+  <Step title="Fill in contract details">
+    Enter:
+    - **Título del Contrato** — A descriptive name for the contract.
+    - **Identificador del Contrato** — A unique internal reference ID.
+    - **Descripción** — A free-text summary of the agreement.
+  </Step>
+  <Step title="Upload the PDF">
+    Drag and drop the signed contract PDF into the file drop zone, or click to browse. Only `.pdf` files are accepted. Exactly one file is required.
+  </Step>
+  <Step title="Save">
+    Click **Guardar**. The PDF is uploaded to Firebase Storage under `contracts/{contractId}/`, and the contract record is written to Firestore. On success, you are redirected to `/contracts`.
+  </Step>
+</Steps>
+
+## Viewing a contract
+
+Navigate to `/contract-details?id={contractId}` to view full contract information, including the linked client, contract date, description, and a link to download or view the PDF document.
+
+## Creating an addendum
+
+Addendums extend an existing contract with amendments, updated terms, or supplementary agreements. You can add multiple addendums to a single contract.
+
+<Steps>
+  <Step title="Open the addendum form">
+    From the contract detail page, click **Crear Addendum**, or navigate directly to `/create-addendum`. The form is linked to the parent contract by ID.
+  </Step>
+  <Step title="Complete the addendum fields">
+    The form mirrors the contract form: provide a title, reference identifier, description, and upload the addendum PDF.
+  </Step>
+  <Step title="Save">
+    Click **Guardar**. The addendum is stored in Firestore and its PDF is saved to Firebase Storage. After saving, the addendum appears in the contract's detail view.
+  </Step>
+</Steps>
+
+## Viewing an addendum
+
+Navigate to `/addendum-details?id={addendumId}` to view the full addendum record and access the PDF.
+
+## Legal contracts
+
+Legal contracts follow the same create-and-view workflow as commercial contracts but are accessed through the `/contracts-legal` route group.
+
+<Steps>
+  <Step title="Navigate to legal contracts">
+    Go to `/contracts-legal` to see the list of all legal contracts.
+  </Step>
+  <Step title="Create a legal contract">
+    Click **Crear Contrato Legal** to open `/contracts-legal-create`. Fill in the title, reference ID, description, and upload the PDF.
+  </Step>
+  <Step title="View a legal contract">
+    Click any row in the list to open `/contracts-legal-detail` and view the full record.
+  </Step>
+</Steps>
+
+## PDF export
+
+Both commercial and legal contracts store their documents as files in Firebase Storage. The download URL is saved in the Firestore record under the `document` field and is available directly from the detail view. No additional export step is required — click the document link to open or download the PDF.
+
+## Permissions
+
+Access to contracts is governed by the following CASL subjects:
+
+| Action | Subject |
+|---|---|
+| View contract list | `ViewContracts` |
+| View contract detail | `ViewContractsDetail` |
+| Create contract | `ViewContractsCreate` |
+| View addendum list | `ViewAddendum` |
+| View addendum detail | `ViewAddendumDetail` |
+
+See [Roles and access control](/administration/roles-access-control) for how these permissions are assigned to each role.

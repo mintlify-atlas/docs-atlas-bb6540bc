@@ -1,0 +1,125 @@
+---
+title: Tickets and orders
+description: How orders drive ticket generation, the relationship between the two entities, and how ticket validation works in TMT.
+---
+
+<Tabs>
+  <Tab title="Tickets">
+    ## What is a ticket?
+
+    A ticket in TMT represents a single attendee's right of entry to a specific event zone or seat. Tickets are generated from orders using the `tickets_generate` Firebase Cloud Function and stored in Firestore, linked to the event they belong to.
+
+    ## Viewing tickets
+
+    Tickets for a specific event are listed at `/tickets?id=<event_id>` (requires the `ViewTickets` permission). The list is populated by the `tickets_list_event` Cloud Function, which returns all tickets associated with the given event ID.
+
+    Individual ticket details — including the holder's information, zone, seat, price, and current status — are accessible at `/tickets-detalles` (requires `ViewTicketsDetail`).
+
+    ## Ticket properties
+
+    Each ticket record holds:
+
+    | Property | Description |
+    |---|---|
+    | **Event ID** | The Firestore document ID of the parent event |
+    | **Zone / seat** | The seating zone or specific seat number |
+    | **Holder** | Customer name and contact information |
+    | **Order reference** | The order that generated this ticket |
+    | **Status** | Current state (e.g., active, used, cancelled) |
+    | **QR code** | Unique code used for entry validation |
+
+    ## QR code validation
+
+    Every ticket carries a QR code that encodes its unique identifier. At the venue, staff can validate tickets using the **ticket search** and **ticket query** screens:
+
+    - **`/buscar-ticket`** (`TicketSearchView`) — scan or enter a ticket identifier to look up a ticket across all events.
+    - **`/ticket-consultado`** (`QueryTicketDisplay`) — displays the full detail of the looked-up ticket, confirming whether it is valid for entry.
+
+    The `tickets_individual` Cloud Function retrieves the specific ticket record for the queried identifier.
+
+    <Note>
+      The `TicketSearchView` and `QueryTicketDisplay` permissions are granted to **Administrador**, **Coordinador**, **Contador**, and **Soporte** roles. This allows multiple staff types to assist with entry validation at the door.
+    </Note>
+
+    ## Customer ticket view
+
+    Staff can also view all tickets belonging to a specific customer. From the customer detail screen, navigate to `/lista-tickets-customer` (requires `ViewCustomerTickets`) to see the customer's full ticket history across events.
+
+    ## Offline tickets
+
+    Ticketing offices can sell tickets offline (at the box office window). Offline tickets are tracked separately:
+
+    - `/lista-tickets-offline` — lists offline tickets issued by a specific office session.
+    - The `offline_office_tickets` and `offline_office_tickets_unassign` Cloud Functions manage assignment and reassignment of offline ticket inventory.
+  </Tab>
+
+  <Tab title="Orders">
+    ## What is an order?
+
+    An order records a purchase transaction — it captures what was bought, by whom, at what price, and through which sales channel. When an order is fulfilled, the platform generates one or more tickets from it via the `tickets_generate` Cloud Function.
+
+    ## Regular orders
+
+    Regular orders are listed at `/ordenes` (accessible to all authenticated staff). Each order detail is available at `/ordenes-detalle`.
+
+    Orders are also viewable in two additional contexts:
+
+    - **Event-scoped** — `/eventos-ordenes?id=<event_id>` shows all orders for a specific event. Individual order detail within this context is at `/eventos-ordenes-detalles`.
+    - **Customer-scoped** — `/lista-ordenes-customer` (requires `ViewCustomerOrders`) shows all orders placed by a specific customer.
+
+    ## Order properties
+
+    | Property | Description |
+    |---|---|
+    | **Order ID** | Unique identifier for the order |
+    | **Customer** | The customer who placed the order |
+    | **Event** | The event the tickets belong to |
+    | **Items** | Ticket zones, quantities, and unit prices |
+    | **Total** | Total amount charged |
+    | **Payment method** | How the order was paid |
+    | **Status** | Current order state (pending, completed, cancelled, etc.) |
+    | **Channel** | Online portal or ticketing office |
+
+    ## Order statuses
+
+    Orders progress through a set of statuses that reflect the payment and fulfillment lifecycle:
+
+    <AccordionGroup>
+      <Accordion title="Pending">
+        The order has been created but payment has not yet been confirmed. Tickets are not issued at this stage.
+      </Accordion>
+      <Accordion title="Completed">
+        Payment was received and tickets have been generated. The customer can present their QR codes for entry.
+      </Accordion>
+      <Accordion title="Cancelled">
+        The order was cancelled before fulfillment. Any reserved inventory is released.
+      </Accordion>
+    </AccordionGroup>
+
+    ## Payout orders
+
+    Payout orders are a separate order type that track outgoing payments — the funds distributed to clients and other stakeholders after an event's revenue has been collected and reconciled.
+
+    Payout orders are managed at `/ordenes-pago` and are organized into three tabs:
+
+    | Tab | Description |
+    |---|---|
+    | **Split** | Revenue split detail showing how funds are allocated across parties using the `split_queries` Cloud Function |
+    | **Ordenes de Pago Pendientes** | Payout orders that have been created but not yet transferred |
+    | **Ordenes de Pago Completadas** | Payout orders that have been successfully transferred |
+
+    Individual payout order details are accessible at `/ordenes-pago-detalle`.
+
+    The `split_payout` Cloud Function handles the calculation and processing of revenue splits when a payout order is executed.
+
+    <Note>
+      Payout orders are distinct from client payout accounts (`/cuentas-pago`), which define the banking details used to receive funds. A payout order references a payout account as the destination for the transfer.
+    </Note>
+
+    ## Payment methods
+
+    Payment methods define the accepted ways customers can pay for orders. They are managed by administrators at `/metodos-pagos`. Each method has a detail view at `/metodos-pagos-detalle` and can be created (`/metodos-pagos-crear`) or edited (`/metodos-pagos-editar`).
+
+    Payment method data is referenced when an order is placed and when financial reconciliation is performed.
+  </Tab>
+</Tabs>

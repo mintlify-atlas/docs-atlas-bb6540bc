@@ -1,0 +1,96 @@
+---
+title: Transactions overview
+description: Understand how TMT records, displays, and organizes every financial movement tied to a ticket sale, refund, or transfer.
+---
+
+A **transaction** in TMT is a single financial record created whenever money changes hands on the platform — a ticket sale at a taquilla, a digital payment, a refund, or a transfer. Every transaction is linked to an order and captures the exact amount, payment method, originating office, and the event it belongs to.
+
+<CardGroup cols={2}>
+  <Card title="Transaction list" icon="list" href="/features/transactions/overview#transaction-list">
+    Browse and search all transactions with real-time filtering.
+  </Card>
+  <Card title="Transaction detail" icon="receipt" href="/features/transactions/overview#transaction-detail">
+    View amount, payment method, parties, and timestamps for a single transaction.
+  </Card>
+  <Card title="Event billing" icon="file-invoice" href="/features/transactions/overview#event-billing">
+    See the financial breakdown of all transactions per event.
+  </Card>
+  <Card title="Export" icon="download" href="/features/transactions/overview#exporting-transactions">
+    Download the transaction list as a CSV file.
+  </Card>
+</CardGroup>
+
+## Transaction types
+
+<Tabs>
+  <Tab title="Sale">
+    A sale transaction is created when a customer purchases one or more tickets. It records the total amount collected, the payment method used (cash, card, bank transfer, mobile payment, etc.), the taquilla that processed it, and the event associated with the order.
+  </Tab>
+  <Tab title="Refund">
+    A refund transaction is generated when a previously completed order is reversed. The refund amount and the original payment method are preserved so the financial record remains balanced.
+  </Tab>
+  <Tab title="Transfer">
+    A transfer transaction records the movement of funds between accounts — for example, from a custody account to a client payout account. Transfers appear in the transaction log alongside sales and refunds.
+  </Tab>
+</Tabs>
+
+## Transaction list
+
+Navigate to `/transacciones` to open the transaction list. The table displays every transaction recorded on the platform and supports the following:
+
+- **Global search** — Type any value in the search bar to filter across event name, payment method, office, and amount simultaneously.
+- **Column sorting** — Click any column header (event name, payment method, office, amount) to sort ascending or descending.
+- **Pagination** — Results are paginated in sets of 10, 15, or 20 rows per page. The footer shows the current range and total count.
+- **View detail** — Click a row or the eye icon in the **Acciones** column to open the full transaction detail.
+
+### Columns
+
+| Column | Description |
+|---|---|
+| Nombre del Evento | Event the transaction belongs to, with the transaction ID shown below. |
+| Método de Pago | Payment method used for the transaction (e.g., cash, card, transfer). |
+| Taquilla | Name of the ticket office (taquilla) that processed the transaction. |
+| Monto | Total amount collected, formatted as a currency value. |
+| Acciones | Quick link to the transaction detail view. |
+
+## Transaction detail
+
+Navigate to `/transacciones-detalle?id={transactionId}` to open a specific transaction. The detail view is split into two panels.
+
+### Main panel
+
+The main panel shows two sections:
+
+**Transaction details**
+- Transaction ID
+- Event name
+- Creation date
+- Payment method
+- Taquilla (office)
+- Client name
+
+**Payment information**
+- Amount — displayed in the transaction currency. If the currency is `VEF` (Venezuelan bolívares), the bolívar amount and the USD equivalent are both shown.
+- Exchange rate — shown when the transaction was settled in bolívares.
+
+### Side panel
+
+The side panel shows the raw transaction ID and the linked order ID. Click **Ver Detalles de la Orden Asociada** to navigate directly to the order record at `/ordenes-detalle`.
+
+<Note>
+  Every transaction is associated with exactly one order. Use the order link in the side panel to see the tickets, splits, and full order history.
+</Note>
+
+## Sales detail
+
+The route `/ventas-detalle` opens a sales-specific detail view for a transaction. It presents the same transaction data as the standard detail view but is scoped to sale-type records and may be linked from the offices or events modules.
+
+## Event billing
+
+Navigate to `/evento-facturacion` from within an event to open the event billing view. This view aggregates all transactions tied to that event into a financial summary, letting you see total revenue collected, broken down by payment method and taquilla.
+
+Event billing is accessible from the event detail page and is intended for end-of-event financial reconciliation before initiating a client payout.
+
+## Exporting transactions
+
+Click the download icon in the top-right corner of the transaction list to export all visible rows as a CSV file. The export respects the current search filter, so you can narrow results first and then export only the matching records.

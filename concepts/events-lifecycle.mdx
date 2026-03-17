@@ -1,0 +1,104 @@
+---
+title: Event lifecycle
+description: The end-to-end journey of an event in TMT, from initial creation through completion.
+---
+
+An event in TMT passes through a series of stages before, during, and after it takes place. Each stage unlocks specific configuration and operational capabilities. The diagram below summarizes the flow, and the steps that follow describe what happens at each stage.
+
+<Steps>
+  <Step title="Creation">
+    An event begins when a user with the `ViewEventsCreate` permission navigates to `/eventos-crear` and submits the **New Event** form.
+
+    The form captures:
+    - Event name and description
+    - Associated **client** (the organization hosting the event)
+    - Linked **event venue** (`/salones-eventos`)
+    - Date, time, and duration
+    - Any additional metadata fields required by the platform configuration
+
+    On save, a new document is written to the `events` Firestore collection and the user is taken to the event detail view at `/evento-detalles?id=<event_id>`.
+
+    <Note>
+      The event must be linked to an existing client and venue. Create these records first if they do not already exist.
+    </Note>
+  </Step>
+
+  <Step title="Configuration">
+    After creation, the event must be fully configured before tickets can be generated. Configuration is split across three screens:
+
+    **Zone and financial setup — `/eventos-config`**
+    
+    The `SetupEvent` screen (`ViewEventsConfig`) displays the event profile banner alongside two panels:
+    - **EventZones** — define the seating areas or ticket categories for the event
+    - **SetupFinancialAdjustments** — configure platform fees and any financial modifiers that apply at the event level
+
+    **Zone detail setup — `/eventos-config-zonas`**
+    
+    The `SetupZonesEvent` screen (`ViewEventsConfigZone`) lets you configure each zone individually via the `SetupEventForm`. This is where you set zone names, capacities, ticket prices, and seat-map assignments (integrated with Seats.io through Firebase Cloud Functions such as `list_charts_seatsio` and `create_event_seatsio`).
+
+    **Revenue split — `/eventos-config-split`**
+    
+    The `SetupSplitEvent` screen (`ViewEventsConfigSplit`, page title "Ajustes Financieros") controls how revenue is distributed among stakeholders — for example, what percentage goes to the client versus the platform. This uses the `split_queries` and `split_payout` Cloud Functions.
+
+    <Note>
+      Only **Administrador** and **Coordinador** roles can access all three configuration screens. **Soporte** users can view zone and split configuration but cannot make changes.
+    </Note>
+  </Step>
+
+  <Step title="Credentials configuration">
+    Credentials are access identifiers (such as badges or VIP passes) that can be attached to an event. Navigate to `/eventos-credenciales?id=<event_id>` to manage them.
+
+    - The list view (`ViewEventsCredentials`) shows all credentials linked to the event.
+    - Click **Crear** to add a new credential at `/eventos-credenciales-crear` (`ViewEventsCredentialsCreate`).
+    - Click any credential to view its full detail at `/eventos-credenciales-detalles` (`ViewEventsCredentialsCreateDetail`).
+
+    Credentials data is stored in Firestore and retrieved via the event document.
+  </Step>
+
+  <Step title="Notifications setup">
+    Configure automated notifications that are sent to attendees or staff at defined points in the event lifecycle.
+
+    Navigate to `/eventos-notificaciones?id=<event_id>` (`ViewEventsNotifications`) to view existing notifications, or to `/eventos-notificaciones-crear` (`ViewEventsNotificationsCreate`) to create a new one.
+
+    Notifications are dispatched using the `send_notifications` and `send_email` Firebase Cloud Functions.
+  </Step>
+
+  <Step title="Published / Active">
+    Once configuration is complete, an administrator can change the event status. The status selector is only visible to users who have the `change eventsStatus` permission — exclusively the **Administrador** role.
+
+    The status change is made from the event detail view at `/evento-detalles`. The `StatusSelect` component writes the updated status back to the Firestore `events` document.
+
+    When an event is **active**, ticketing offices (`/lista-taquillas`) can be linked to it and begin selling tickets. Office-level event lists are accessible at `/lista-eventos-taquilla` (`ViewOfficeEventList`).
+  </Step>
+
+  <Step title="Orders and billing">
+    As tickets are sold, orders are created. Event-scoped orders are viewable at `/eventos-ordenes` (no permission guard — all staff can view).
+
+    Individual order details are at `/eventos-ordenes-detalles`.
+
+    Billing summaries and expense reconciliation for the event are available at `/evento-facturacion`, which calls the `generateBillingFromExpenses` Cloud Function to produce billing records from event expenses.
+  </Step>
+
+  <Step title="Completed">
+    After the event date passes, the event moves to a completed state. Historical data remains accessible:
+
+    - **Tickets** — all issued tickets remain queryable via `/tickets?id=<event_id>` and the global ticket search at `/buscar-ticket`.
+    - **Orders** — the full order history is accessible at `/ordenes` and `/eventos-ordenes`.
+    - **Payout orders** — revenue distribution records are managed at `/ordenes-pago`, which lists pending and completed payout orders in separate tabs.
+    - **Transactions** — all financial movements are logged at `/transacciones`.
+    - **Conciliations** — bank and company document reconciliation is performed at `/conciliaciones`, using the `conciliation_data`, `conciliation_data_banco`, and `conciliation_data_cia` Cloud Functions.
+  </Step>
+</Steps>
+
+## Event detail view
+
+At any stage, the event detail page at `/evento-detalles?id=<event_id>` provides a consolidated overview:
+
+| Section | Content |
+|---|---|
+| **Profile banner** | Event name, venue, dates, and status |
+| **Client info** | Contact and organization details for the linked client |
+| **Event metadata** | Configuration summary (zones, pricing, capacity) |
+| **Revenue chart** | Rolling 7-day revenue graph powered by the `total_sales` Cloud Function |
+| **Contracts** | Contracts associated with the event |
+| **Status selector** | Visible only to Administrador role |

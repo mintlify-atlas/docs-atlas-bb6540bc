@@ -1,0 +1,89 @@
+---
+title: Conciliations and documents
+description: Upload bank and company documents, then run the conciliation process to match financial records between the platform and your bank.
+---
+
+**Conciliation** (Conciliación) is the process of comparing the financial records held in TMT against the official statements provided by a bank or company. The goal is to identify transactions that are fully matched, amounts that appear only in the bank's records, amounts that appear only in the company's records, and any items that require a special adjustment.
+
+The workflow starts by uploading financial documents and then running the conciliation engine against those documents.
+
+## Routes
+
+| Route | Purpose |
+|---|---|
+| `/documentos` | List of uploaded bank and company documents |
+| `/registrar-documento-banco` | Upload a new bank document |
+| `/registrar-documento-compania` | Upload a new company document |
+| `/conciliaciones` | Run and review the conciliation process |
+
+## Documents
+
+Navigate to `/documentos` to view all financial documents uploaded to the platform. The page is organized into two tabs:
+
+- **Documentos de Banco** — statements and transaction files downloaded from your bank
+- **Documentos de Compañía** — internal records exported from your accounting or ERP system
+
+### Uploading documents
+
+<Tabs>
+  <Tab title="Bank document">
+    <Steps>
+      <Step title="Open the bank document form">
+        Navigate to `/registrar-documento-banco` or click **Registrar** in the **Documentos de Banco** tab.
+      </Step>
+      <Step title="Fill in the document details">
+        Complete the form with the document metadata. Required fields depend on the document format but typically include the statement period, the source bank, and the file itself.
+      </Step>
+      <Step title="Submit the document">
+        Click **Guardar** to upload and register the bank document. The document becomes available in the **Documentos de Banco** tab and can be selected when running a conciliation.
+      </Step>
+    </Steps>
+  </Tab>
+  <Tab title="Company document">
+    <Steps>
+      <Step title="Open the company document form">
+        Navigate to `/registrar-documento-compania` or click **Registrar** in the **Documentos de Compañía** tab.
+      </Step>
+      <Step title="Fill in the document details">
+        Complete the form with the period covered, the data source (for example, an accounting system export), and the file to upload.
+      </Step>
+      <Step title="Submit the document">
+        Click **Guardar** to upload and register the company document. The document appears in the **Documentos de Compañía** tab.
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+<Note>
+  Keep bank and company documents organized by period. The conciliation engine matches records within the same date range, so uploading documents from different periods in the same conciliation run will produce incorrect results.
+</Note>
+
+## Running a conciliation
+
+Navigate to `/conciliaciones` to open the conciliation workspace. The page contains five tabs that guide you through reviewing results:
+
+<Steps>
+  <Step title="Review the summary">
+    The **Resumen** tab shows an aggregated overview of the conciliation: total amounts matched, total unmatched from the bank, total unmatched from the company, and any special adjustments applied. Use this tab to get a quick picture of the overall financial alignment before drilling into details.
+  </Step>
+  <Step title="Inspect conciliated records">
+    The **Conciliados** tab lists all transactions that were successfully matched between the bank statement and the company records. Each row shows the matching transaction from both sources side by side. A fully conciliated record requires no further action.
+  </Step>
+  <Step title="Resolve bank-only records">
+    The **No Conciliados (Banco)** tab shows transactions present in the bank statement that have no corresponding entry in the company records. These may represent payments not yet recorded internally, bank fees, or data entry errors. Review each item and either create the missing company record or flag the discrepancy.
+  </Step>
+  <Step title="Resolve company-only records">
+    The **No Conciliados (Compañía)** tab shows transactions in the company records that have no corresponding bank entry. These may represent payments still in transit, voided checks, or recording errors. Each item should be investigated and resolved before closing the period.
+  </Step>
+  <Step title="Apply special adjustments">
+    The **Ajustes Especiales** tab allows you to create manual adjustments for items that cannot be automatically matched — for example, bank charges, interest income, rounding differences, or corrections to prior periods. Adjustments are recorded against the conciliation so the final balance reconciles to zero.
+  </Step>
+</Steps>
+
+<Info>
+  Complete the conciliation process from the **Resumen** tab outward. Start by reviewing the summary to understand the scale of the discrepancies, then work through each unmatched tab before making adjustments.
+</Info>
+
+<Warning>
+  A conciliation period should be closed only when the **No Conciliados (Banco)** and **No Conciliados (Compañía)** tabs are empty or all remaining items have been intentionally deferred. Closing with unresolved items will carry discrepancies into the next period.
+</Warning>

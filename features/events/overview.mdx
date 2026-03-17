@@ -1,0 +1,76 @@
+---
+title: Events overview
+description: Understand what events are in TMT, how to find them, and where to go to create, configure, and manage them.
+---
+
+An event in TradeMaster Transactions represents a ticketed occasion — a concert, theater show, sports match, or any other gathering — tied to a venue, a client, and a set of ticket zones. Each event moves through a defined lifecycle from creation through sale to completion.
+
+## Routes
+
+| Route | Description | Audience |
+|-------|-------------|----------|
+| `/eventos` | Full event list with management controls | Staff |
+| `/cliente-eventos` | Client-scoped event list for a specific client | Staff (client context) |
+| `/eventos-crear` | Create a new event | Staff |
+| `/eventos-editar` | Edit an existing event | Staff |
+| `/evento-detalles` | Event detail and revenue dashboard | Staff |
+| `/eventos-config` | Zone and financial adjustment setup | Staff |
+| `/eventos-config-zonas` | Zone configuration form | Staff |
+| `/eventos-config-split` | Revenue split configuration | Staff |
+| `/eventos-credenciales` | Credential list for an event | Staff |
+| `/eventos-notificaciones` | Notification list for an event | Staff |
+
+## Events list
+
+Navigate to `/eventos` to see all events on the platform. The list is powered by `EventsTable`, which supports:
+
+- **Search** — Filter events by name in real time.
+- **Sorting** — Click column headers to sort by name, date, status, or venue.
+- **Filtering** — Narrow events by status or client.
+- **Pagination** — Navigate through large event sets page by page.
+
+Each row in the table shows the event name, associated client, venue, start date, status, and quick-action buttons.
+
+### Event statuses
+
+Events move through the following status values:
+
+| Status | Meaning |
+|--------|---------|
+| `Instanciado` | Created but not yet configured |
+| `Configurado` | Zones and financial setup complete |
+| `Activo` | On sale and accepting ticket purchases |
+| `Finalizado` | Event has concluded |
+| `Cancelado` | Event has been cancelled |
+
+<Note>
+Only users with the `change eventsStatus` permission can update an event's status. This is enforced via CASL on the **StatusSelect** component in the event detail view.
+</Note>
+
+## Event detail view
+
+From the list, click an event to open its detail page at `/evento-detalles`. The detail view shows:
+
+- **ProfileBanner** — Event name, banner image, venue, and dates.
+- **StatusSelect** — Change the event status (permission-gated).
+- **ClientInfo** — The client associated with the event and their contracts.
+- **EventMetadata** — Event type, main and secondary activities, and terms and conditions.
+- **ContractsCard** — Linked contracts for the event.
+- **RevenueUpdates** — A 7-day rolling revenue chart powered by `total_sales`.
+
+## Explore this section
+
+<CardGroup cols={2}>
+  <Card title="Creating events" icon="circle-plus" href="/features/events/creating-events">
+    Step-by-step guide to creating a new event including venue association and Seats.io integration.
+  </Card>
+  <Card title="Zone and split setup" icon="sliders" href="/features/events/setup-zones">
+    Configure ticket zones, seating maps, and revenue splits after an event is created.
+  </Card>
+  <Card title="Credentials" icon="id-badge" href="/features/events/credentials">
+    Create and manage access credentials (badges/passes) for an event.
+  </Card>
+  <Card title="Notifications" icon="bell" href="/features/events/notifications">
+    Send push notifications to ticket holders for an event.
+  </Card>
+</CardGroup>

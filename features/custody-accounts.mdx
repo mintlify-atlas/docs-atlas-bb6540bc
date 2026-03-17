@@ -1,0 +1,119 @@
+---
+title: Custody accounts
+description: Manage Cuentas Custodio — escrow-like accounts that hold collected ticket revenue on behalf of clients until disbursement.
+---
+
+A **custody account** (Cuenta Custodio) is an escrow-like account within TMT that holds ticket revenue collected through a specific payment method on behalf of a client (producer). Funds accumulate in the custody account as ticket sales occur and remain there until a payout is approved and disbursed to the client's registered payout account.
+
+Each custody account is scoped to a single client, a single currency, a payment type, and a country. Payment methods are linked to custody accounts so that every incoming payment is automatically attributed to the correct account.
+
+## Routes
+
+| Route | Purpose |
+|---|---|
+| `/cuenta-custodio` | List of all custody accounts |
+| `/cuenta-custodio-detalle?id={id}` | Account detail with balance and orders |
+| `/cuenta-custodio-crear` | Create a new custody account |
+| `/cuenta-custodio-editar?id={id}` | Edit an existing custody account |
+| `/cuenta-custodio-orden-detalle?custody_account={id}&order_id={orderId}` | Detail view for a single order within a custody account |
+
+## Creating a custody account
+
+Navigate to `/cuenta-custodio-crear` or click **Crear Cuenta Custodio** in the list view.
+
+<Steps>
+  <Step title="Name the account">
+    Enter a descriptive label in **Nombre** that identifies the client, payment type, and currency (for example, "Custodio Transferencia USD - Productor XYZ").
+  </Step>
+  <Step title="Select the payment type">
+    Choose a value from **Tipo de Pago**. This determines which payment methods can be linked to this account.
+  </Step>
+  <Step title="Select the currency">
+    Choose the **Moneda** (currency) for the account. All balances are tracked in this currency.
+  </Step>
+  <Step title="Select the country">
+    Choose the **País** from the location list. For Venezuelan accounts (`ve`), additional banking fields appear automatically.
+  </Step>
+  <Step title="Select the client">
+    Choose the **Cliente / Productor** who owns this account. You can assign it to TMT itself or to any registered client.
+  </Step>
+  <Step title="Fill in bank details (Venezuela only)">
+    If the country is Venezuela (`ve`), the following additional fields are required:
+    - **Banco** — the bank institution holding the account
+    - **Tipo de Cuenta** — savings (`Ahorro`) or checking (`Corriente`)
+    - **Saldo Inicial de la Cuenta** — the opening balance in whole numbers
+    - **Número de cuenta** — the 16-digit (minimum) account number
+  </Step>
+  <Step title="Enter manager contact details">
+    Fill in the **Datos del Encargado** section:
+    - **Nombre del Encargado** — full name of the account manager
+    - **Email del Encargado** — valid email address
+    - **Teléfono del Encargado** — phone number with country code (Venezuela and US are preferred defaults)
+  </Step>
+  <Step title="Save the account">
+    Click **Guardar** to create the custody account. Click **Cancelar** to go back without saving.
+  </Step>
+</Steps>
+
+<Note>
+  The opening balance field is only visible and required for Venezuelan accounts. For other countries, the initial balance is automatically set to zero.
+</Note>
+
+## Account validation
+
+After creating a custody account, its opening balance status is **Pendiente de Validación**. An administrator must validate the account before it can receive and release funds.
+
+To validate an account:
+
+1. Open the account detail at `/cuenta-custodio-detalle?id={id}`.
+2. Click **Validar Cuenta** (visible only when the account has not yet been validated).
+3. Confirm the action in the dialog that appears.
+
+Once validated, the **Balance inicial disponible** indicator changes from **Pendiente de Validación** to **Validado**, and the **Validar Cuenta** button is hidden.
+
+<Warning>
+  Validation is a one-way operation. Once an account is validated, the opening balance is marked as available and cannot be rolled back through the UI. Verify all account details before confirming.
+</Warning>
+
+## Account detail
+
+Navigate to `/cuenta-custodio-detalle?id={id}` to view a custody account's full record.
+
+### Main panel
+
+**Account details**
+- Name, payment type, country, currency, and creation date
+
+**Financial information**
+- **Saldo Disponible** — funds available for disbursement
+- **Saldo Pendiente** — funds that have been collected but not yet cleared
+
+**Bank data** (shown for Venezuelan accounts)
+- Bank name, account type, and account number
+
+**Orders**
+The orders section lists all transactions attributed to this custody account. Expand the accordion to view the orders table, which shows:
+
+| Column | Description |
+|---|---|
+| Nombre del Evento | Event linked to the order, with the order ID below |
+| Taquilla | Office that processed the payment |
+| Nombre de pago | Payment method name |
+| Tipo de pago | Payment type category |
+| Fecha | Date the order was created |
+| Fecha Confirmado | Date the order was confirmed |
+| Monto | Amount in USD |
+| Estatus | Aprobado (approved) or Por aprobar (pending approval) |
+
+Click the eye icon or the order row to navigate to the order detail at `/cuenta-custodio-orden-detalle`.
+
+### Side panel
+
+- **Status** — ACTIVO or INACTIVO with a color indicator
+- **Balance inicial disponible** — Validado (validated) or Pendiente de Validación
+- **Datos del Encargado** — manager name, email, and phone
+- **Cliente / Productor** — client name and ID
+
+## Editing a custody account
+
+Navigate to `/cuenta-custodio-editar?id={id}` from the list or detail view. The edit form uses the same fields as the creation form, pre-populated with current values. Click **Guardar** to save changes.

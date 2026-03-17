@@ -1,0 +1,91 @@
+---
+title: Creating events
+description: Create a new event in TMT by associating a venue, uploading a banner, filling in event details, and linking client contracts.
+---
+
+Navigate to `/eventos-crear` or click **Crear Evento** from the events list to open the new event form. The form is divided into four sections that you complete in order.
+
+<Steps>
+  <Step title="Select the client and contracts">
+    In the **Datos** section, choose the client who owns the event from the **Cliente** dropdown. The list is populated from the `u_clients` collection.
+
+    Once a client is selected, the **Contratos** field becomes available. Select one or more contracts associated with the client. You must choose at least one contract.
+
+    Then select the **Contrato Legal** — the single legal contract document that governs the event's financial terms. This document is saved to `events/{id}/setup/financial` on creation and drives the revenue split configuration later.
+
+    <Warning>
+    Contracts are filtered by client. Select the client first, or the Contratos and Contrato Legal fields will remain empty.
+    </Warning>
+  </Step>
+
+  <Step title="Associate a venue">
+    Select the **Sala de Evento** from the dropdown. All venues from the `event_venues` collection are listed here.
+
+    If the selected venue has a Seats.io seat map configured, the platform:
+    - Displays a preview thumbnail of the map.
+    - Validates that the chart is in a publishable state (`NOT_USED`, `PUBLISHED`, or `PUBLISHED_WITH_DRAFT`).
+    - Creates a Seats.io event linked to that chart before saving to Firebase.
+
+    Venues with a configured seat map are marked with a map icon in the dropdown.
+
+    <Note>
+    If the seat map chart is not published, the platform shows a warning and blocks event creation until the map is in a valid state.
+    </Note>
+  </Step>
+
+  <Step title="Upload a banner image">
+    In the **Banner del Evento** section, click **Cargar** to upload the event banner image.
+
+    - Accepted formats: JPG, GIF, PNG
+    - Maximum file size: 2 MB
+    - Recommended dimensions: 2500 × 900 pixels
+
+    The image is uploaded to Firebase Storage at `events/{id}/banner/banner_picture.jpg` and stored in the event document as `event.media`.
+
+    Click **Reiniciar** to clear the selected image and start over.
+  </Step>
+
+  <Step title="Fill in event details">
+    The **Datos del Evento** section contains the core event information:
+
+    | Field | Required | Notes |
+    |-------|----------|-------|
+    | **Nombre** | Yes | The public-facing event name |
+    | **Tipo de Evento** | Yes | Dropdown populated from platform configuration |
+    | **Fecha de Inicio** | Yes | Start datetime; cannot be in the past |
+    | **Fecha de Cierre** | Yes | End datetime; must be after start date |
+    | **Descripción** | Yes | Public event description |
+
+    Below that, the **Información del evento** section captures:
+
+    | Field | Required | Notes |
+    |-------|----------|-------|
+    | **Actividad Principal** | Yes | Primary attraction (e.g., artist name) |
+    | **Actividad Secundaria** | Yes | Supporting act or secondary activity |
+    | **Términos y Condiciones** | Yes | Event-specific terms shown to ticket buyers |
+    | **Descripción** (artista) | Yes | Extended description of the main act |
+  </Step>
+
+  <Step title="Save the event">
+    Click **Guardar** to create the event. The platform executes the following steps in order:
+
+    1. If a seat map is associated, creates the event in Seats.io first using `create_event_seatsio`.
+    2. Saves the event document to the `events` Firestore collection.
+    3. Generates a random QR security key and saves it to `events/{id}/security/qr-pin`.
+    4. Saves the legal contract data to `events/{id}/setup/financial`.
+    5. Uploads the banner image to Firebase Storage.
+    6. Updates the event document with the banner URL and event name.
+
+    On success, you are redirected to `/eventos`. The event starts in `Instanciado` status and is ready for zone configuration.
+
+    <Tip>
+    After creating an event, proceed to [zone and split setup](/features/events/setup-zones) to configure ticket zones and revenue splits before setting the event to `Activo`.
+    </Tip>
+  </Step>
+</Steps>
+
+## Editing an existing event
+
+To modify an event after creation, navigate to `/eventos-editar?id={eventId}`. The edit form uses `EditEventForm` and contains the same fields as the creation form, pre-populated with existing values.
+
+Changes to the venue or seat map on edit do not automatically re-create the Seats.io event — contact an administrator if seat map changes are needed after creation.

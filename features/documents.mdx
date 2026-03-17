@@ -1,0 +1,86 @@
+---
+title: Documents
+description: Upload and manage bank statements and company financial documents that feed into TMT's conciliation process.
+---
+
+The documents module is the entry point for financial records used in conciliation. You upload bank statements and company financial documents here, and TMT's conciliation engine cross-references them to reconcile transactions.
+
+## Routes
+
+| Route | Description |
+|---|---|
+| `/documentos` | Documents list with bank and company tabs |
+| `/registrar-documento-banco` | Upload a bank document |
+| `/registrar-documento-compania` | Upload a company document |
+| `/conciliaciones` | Conciliation dashboard |
+
+## Document types
+
+The `/documentos` page organizes documents into two tabs:
+
+<Tabs>
+  <Tab title="Bank documents">
+    Bank documents are statements or transaction exports from financial institutions. They represent what the bank recorded as received payments.
+
+    - **Tab label**: Documentos de Banco
+    - **Icon**: Building bank
+    - **Upload route**: `/registrar-documento-banco`
+
+    Bank documents are stored in Firestore and are used by the `conciliation_data_banco` and `conciliation_load_bank_manual` cloud functions during the conciliation process.
+  </Tab>
+  <Tab title="Company documents">
+    Company documents are internal financial records — such as sales reports or accounting exports — that represent what TMT recorded as collected payments.
+
+    - **Tab label**: Documentos de Compañía  
+    - **Icon**: Building factory
+    - **Upload route**: `/registrar-documento-compania`
+
+    Company documents are processed by the `conciliation_data_cia` and `conciliation_load_cia_manual` cloud functions.
+  </Tab>
+</Tabs>
+
+## Uploading a bank document
+
+<Steps>
+  <Step title="Navigate to the upload form">
+    From `/documentos`, click the **Documentos de Banco** tab, then click **Registrar Documento de Banco**, or navigate directly to `/registrar-documento-banco`.
+  </Step>
+  <Step title="Complete the form">
+    Fill in the required fields in the bank document form (`BankDocForm`). Typically this includes the document date, reference period, and the file itself.
+  </Step>
+  <Step title="Save">
+    Click **Guardar** to upload the document. The record is written to Firestore and the file is stored in Firebase Storage.
+  </Step>
+</Steps>
+
+## Uploading a company document
+
+<Steps>
+  <Step title="Navigate to the upload form">
+    From `/documentos`, click the **Documentos de Compañía** tab, then click **Registrar Documento de Compañía**, or navigate directly to `/registrar-documento-compania`.
+  </Step>
+  <Step title="Complete the form">
+    Fill in the required fields in the company document form (`CompanyDocForm`). Include the reporting period and any reference identifiers.
+  </Step>
+  <Step title="Save">
+    Click **Guardar** to upload the document. The record is written to Firestore and the file is stored in Firebase Storage.
+  </Step>
+</Steps>
+
+## How documents feed into conciliations
+
+Conciliation is the process of matching bank-reported payments against company-recorded sales. TMT runs conciliation automatically using a suite of Firebase cloud functions:
+
+| Function | Purpose |
+|---|---|
+| `conciliation_data_banco` | Fetch and process bank document data |
+| `conciliation_data_cia` | Fetch and process company document data |
+| `conciliation_data` | Run the cross-reference comparison |
+| `noconciliation_data_b` | Identify unmatched bank entries |
+| `noconciliation_data_cia` | Identify unmatched company entries |
+| `conciliation_load_bank_manual` | Manually load a bank document into conciliation |
+| `conciliation_load_cia_manual` | Manually load a company document into conciliation |
+| `conciliation_summary` | Generate a conciliation summary report |
+| `conciliation_ajustes` | Apply manual adjustments to reconcile discrepancies |
+
+Navigate to `/conciliaciones` to view the conciliation dashboard, review matched and unmatched entries, and apply adjustments.

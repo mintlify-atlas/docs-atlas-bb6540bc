@@ -1,0 +1,64 @@
+---
+title: Account settings
+description: Manage your personal profile, notification preferences, and account security settings.
+---
+
+Account settings let you update your personal information, control which notifications you receive, and manage your login security. Navigate to `/user-profile` to access these settings.
+
+## Accessing account settings
+
+Click your avatar or name in the top navigation bar and select **Configuración de Perfil**, or navigate directly to `/user-profile`.
+
+## Settings tabs
+
+The account settings page is organized into three tabs.
+
+### Account (Cuenta)
+
+The **Cuenta** tab (`AccountTab`) lets you update your personal profile information:
+
+- Display name
+- Profile photo
+- Contact email
+- Any other profile fields configured for your organization
+
+<Steps>
+  <Step title="Open the Account tab">
+    Navigate to `/user-profile`. The **Cuenta** tab is active by default.
+  </Step>
+  <Step title="Edit your information">
+    Update any field you want to change. Required fields are marked.
+  </Step>
+  <Step title="Save">
+    Click **Guardar** to apply your changes.
+  </Step>
+</Steps>
+
+### Notifications
+
+The **Notificaciones** tab (`NotificationTab`) controls which platform events trigger alerts for your account. Toggle individual notification types on or off based on your preferences.
+
+Notification settings are stored per user and do not affect other users' preferences.
+
+### Security
+
+The **Seguridad** tab (`SecurityTab`) lets you update your account password.
+
+<Steps>
+  <Step title="Open the Security tab">
+    Click **Seguridad** in the account settings tab bar.
+  </Step>
+  <Step title="Enter your current password">
+    Provide your existing password to verify your identity before making changes. TMT uses `reauthenticateWithCredential` from the Firebase Auth SDK to re-authenticate you before accepting the new password.
+  </Step>
+  <Step title="Enter and confirm your new password">
+    Type the new password and confirm it in the second field. Both values must match.
+  </Step>
+  <Step title="Save">
+    Click **Guardar** to update your password. You will remain logged in after the change.
+  </Step>
+</Steps>
+
+<Warning>
+Store your new password securely before saving. TMT does not display the password after you save it, and account recovery requires access to your registered email address.
+</Warning>
