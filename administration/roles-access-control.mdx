@@ -26,9 +26,9 @@ TMT ships with five predefined roles:
 | Role | Description |
 |---|---|
 | **Administrador** | Full access to all features and settings. Uses CASL's `can('manage', 'all')` — no restrictions. |
-| **Coordinador** | Manages events, contracts, offices, clients, and collaborators. Cannot manage payouts or view campaigns. |
-| **Contador** | Read-only access to contracts, events, and financial data. Cannot create events, contracts, or manage users. |
-| **Soporte** | Can view clients, collaborators, events, and tickets. Cannot create or modify most data, access payouts, or view campaigns. |
+| **Coordinador** | Manages events, contracts, offices, clients, and collaborators. Can view client payouts (`ViewClientPayouts`) but cannot access the main payout management (`ViewPayouts`) or marketing campaigns. Cannot create or edit staff accounts. |
+| **Contador** | Read-only access to clients, contracts, events, and financial data. Can view ticket search and client payouts. Cannot create events, contracts, manage users, view campaigns, or access payout management. |
+| **Soporte** | Can view clients, collaborators, events, event configuration, and individual ticket details (`ViewTicketsDetail`). Cannot view the ticket list (`ViewTickets`), create or modify most data, access payouts, or view campaigns. |
 | **Creador de Sala de Eventos** | Can create and manage event venues only. Cannot access most other features. |
 
 <Note>

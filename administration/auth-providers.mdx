@@ -3,44 +3,26 @@ title: Authentication providers
 description: How TMT authenticates users using Auth0 and Firebase, and how route guards protect the application.
 ---
 
-TMT uses two complementary authentication systems: **Auth0** for identity management and login flows, and **Firebase Authentication** for back-end service access. Route guards built on top of these systems control which pages users can access based on their authentication state and role permissions.
+TMT uses **Firebase Authentication** as its active identity provider, with Firebase Firestore and Cloud Functions providing back-end data and business logic. An Auth0 integration (`Auth0Context`) exists in the codebase but is currently inactive — the active auth hook (`UseAuth`) resolves to `FirebaseContext`. Route guards built on top of Firebase control which pages users can access based on their authentication state and role permissions.
 
 ## Authentication providers
 
 <Tabs>
-  <Tab title="Auth0">
-    Auth0 is the primary identity provider for TMT. It handles user login, session management, and token issuance.
+  <Tab title="Firebase (active)">
+    Firebase Authentication is the active identity provider for TMT. It handles user login, session persistence, and password reset.
 
-    **Package**: `@auth0/auth0-spa-js`  
-    **Context file**: `src/guards/auth0/Auth0Context.js`
+    **Package**: `firebase/compat/app`  
+    **Context file**: `src/guards/firebase/FirebaseContext.js`
 
-    ### How it works
-
-    At app startup, `Auth0Context` initializes an `Auth0Client` instance using the environment variables `VITE_AUTH0_CLIENT_ID` and `VITE_AUTH0_DOMAIN`. It then calls `checkSession()` to restore any existing session silently.
+    The active auth hook:
 
     ```javascript
-    auth0Client = new Auth0Client({
-      domain: auth0Config.domain,
-      clientId: auth0Config.client_id,
-      authorizationParams: { redirect_uri: window.location.origin },
-    });
-    await auth0Client.checkSession();
+    // src/guards/authGuard/UseAuth.js
+    import AuthContext from '../firebase/FirebaseContext';
+    // import { AuthContext } from '../auth0/Auth0Context'; // inactive
+    const useAuth = () => useContext(AuthContext);
     ```
 
-    Login is triggered via a popup:
-
-    ```javascript
-    await auth0Client.loginWithPopup();
-    ```
-
-    After a successful login, the user object is retrieved with `auth0Client.getUser()` and stored in React context. The context exposes `isAuthenticated`, `user`, `signin`, `logout`, and `resetPassword`.
-
-    ### Required environment variables
-
-    | Variable | Description |
-    |---|---|
-    | `VITE_AUTH0_CLIENT_ID` | Your Auth0 application client ID |
-    | `VITE_AUTH0_DOMAIN` | Your Auth0 tenant domain (e.g., `your-tenant.auth0.com`) |
   </Tab>
   <Tab title="Firebase">
     Firebase provides the real-time database, Firestore, Storage, and Cloud Functions that power TMT's back-end. Firebase Authentication is also initialized as part of the Firebase SDK setup.

@@ -29,9 +29,9 @@ The five defined staff roles are:
 | Role | Description |
 |---|---|
 | **Administrador** | Full access — `can('manage', 'all')`. No restrictions. |
-| **Coordinador** | Broad operational access. Can manage clients, collaborators, events, tickets, credentials, contracts, venues, and offices. Cannot create or edit other staff members, change event/ticket statuses, or access payouts and campaigns. |
+| **Coordinador** | Broad operational access. Can manage clients, collaborators, events, tickets, credentials, contracts, venues, and offices. Cannot create or edit other staff members, change event/ticket statuses, or access payout management (`ViewPayouts`) and campaigns. Can view client payouts (`ViewClientPayouts`). |
 | **Contador** | Read-only financial focus. Can view clients, contracts, events, event details, and payout information. Cannot create users, events, tickets, or credentials. |
-| **Soporte** | Read-only support access. Can view events, event configuration, ticket details, and venue details. Cannot create or edit anything, and cannot access contracts, staff lists, or payouts. |
+| **Soporte** | Read-only support access. Can view events, event configuration, individual ticket details (`ViewTicketsDetail`), and venue details. Cannot view the ticket list (`ViewTickets`), cannot create or edit anything, and cannot access contracts, staff lists, campaigns, or payouts. |
 | **Creador de Sala de Eventos** | Narrowly scoped to venue management. Can create and edit event venues. Has no access to events, tickets, users, contracts, or financial features. |
 
 ## How CASL is applied
