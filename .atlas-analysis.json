@@ -1,0 +1,146 @@
+{
+  "projectType": "saas",
+  "projectName": "TradeMaster Transactions (TMT)",
+  "projectDescription": "A comprehensive SaaS platform for event ticketing, transaction management, and venue operations with role-based access control.",
+  "theme": "linden",
+  "primaryColor": "#1a6fc4",
+  "lightColor": "#e8f1fb",
+  "darkColor": "#0d3d70",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Overview",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": ["introduction", "getting-started/quickstart", "getting-started/authentication"]
+          },
+          {
+            "group": "Core Concepts",
+            "pages": [
+              "concepts/roles-permissions",
+              "concepts/events-lifecycle",
+              "concepts/tickets-orders"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Features",
+        "groups": [
+          {
+            "group": "Dashboard",
+            "pages": ["features/dashboard"]
+          },
+          {
+            "group": "Events & Venues",
+            "pages": [
+              "features/events/overview",
+              "features/events/creating-events",
+              "features/events/setup-zones",
+              "features/events/credentials",
+              "features/events/notifications",
+              "features/venues/overview"
+            ]
+          },
+          {
+            "group": "Tickets & Orders",
+            "pages": [
+              "features/tickets/overview",
+              "features/orders/overview",
+              "features/orders/payout-orders"
+            ]
+          },
+          {
+            "group": "Users",
+            "pages": [
+              "features/users/staff",
+              "features/users/clients",
+              "features/users/collaborators",
+              "features/users/customers"
+            ]
+          },
+          {
+            "group": "Financial",
+            "pages": [
+              "features/transactions/overview",
+              "features/payouts/overview",
+              "features/payment-methods",
+              "features/custody-accounts",
+              "features/conciliations"
+            ]
+          },
+          {
+            "group": "Operations",
+            "pages": [
+              "features/offices/overview",
+              "features/contracts/overview",
+              "features/portals/overview",
+              "features/marketing/overview",
+              "features/documents"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Administration",
+        "groups": [
+          {
+            "group": "Configuration",
+            "pages": [
+              "administration/platform-settings",
+              "administration/account-settings"
+            ]
+          },
+          {
+            "group": "Security",
+            "pages": [
+              "administration/roles-access-control",
+              "administration/auth-providers"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Event creation and management with zone/seat setup",
+    "Ticket issuance, search, and QR code support",
+    "Order tracking and payout management",
+    "Multi-role user system (Staff, Clients, Collaborators, Customers)",
+    "Venue (Salones de Eventos) management",
+    "Financial transactions, conciliations, and custody accounts",
+    "Role-based access control with CASL",
+    "Marketing campaign management",
+    "Client portals for end-user access",
+    "Firebase-backed real-time data",
+    "Auth0 authentication with multi-provider support",
+    "PDF report generation and document management",
+    "Office (Taquilla) operations with offline ticket support",
+    "Multi-language internationalization (i18next)"
+  ],
+  "publicApiSurface": [
+    "Dashboard: /dashboards/modern",
+    "Events: /eventos, /eventos-crear, /eventos-editar, /evento-detalles",
+    "Event Setup: /eventos-config, /eventos-config-zonas, /eventos-config-split",
+    "Tickets: /tickets, /tickets-detalles, /buscar-ticket",
+    "Orders: /ordenes, /ordenes-detalle",
+    "Transactions: /transacciones, /transacciones-detalle",
+    "Users - Staff: /usuarios-staff, /usuarios-staff-crear, /usuarios-staff-editar",
+    "Users - Clients: /usuarios-clients, /usuarios-detalle-cliente",
+    "Users - Collaborators: /usuarios-collaborators, /usuarios-collab-crear",
+    "Users - Customers: /usuarios-customers, /usuarios-detalle-customers",
+    "Venues: /salones-eventos, /salones-eventos-crear, /salones-eventos-editar",
+    "Contracts: /contracts, /create-contracts, /contract-details",
+    "Legal Contracts: /contracts-legal, /contracts-legal-create",
+    "Payouts: /cuentas-pago, /cuentas-pago-crear, /cuentas-pago-detalles",
+    "Payment Methods: /metodos-pagos, /metodos-pagos-crear",
+    "Offices: /lista-taquillas, /detalles-taquilla, /crear-taquilla",
+    "Custody Accounts: /cuenta-custodio, /cuenta-custodio-detalle",
+    "Portals: /portales, /portales-crear, /portales-editar",
+    "Marketing: /campanas, /campanas-crear",
+    "Documents: /documentos, /conciliaciones",
+    "Event Billing: /evento-facturacion",
+    "Authentication: /auth/login, /auth/register, /auth/forgot-password"
+  ]
+}
